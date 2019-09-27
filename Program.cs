@@ -26,10 +26,10 @@ namespace MilkrunOptimizer
         private static void GenerateTrainingData(int from, int to)
         {
             var td = BatchSimulator.LinesFromSeedRange(from, to);
-            string  outFilename = $"results_from_{from}_to_{to}.bin";
+            var outFilename = $"results_from_{from}_to_{to}.bin";
             TrainingDataPersistence.SaveToDisk(td, outFilename);
         }
-        
+
         private static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -37,7 +37,7 @@ namespace MilkrunOptimizer
             if (args.Contains("BatchSimulation"))
             {
                 int fromSeed = 1, toSeed = 10;
-                foreach (string arg in args)
+                foreach (var arg in args)
                 {
                     if (arg.StartsWith("From="))
                         fromSeed = int.Parse(arg.Split("=")[1]);
@@ -46,7 +46,8 @@ namespace MilkrunOptimizer
                 }
 
                 GenerateTrainingData(fromSeed, toSeed);
-            } else if (args.Contains("JobGeneration"))
+            }
+            else if (args.Contains("JobGeneration"))
             {
                 JobGenerator.GenerateJobs();
             }

@@ -4,7 +4,7 @@ namespace MilkrunOptimizer.Cluster
 {
     public class JobGenerator
     {
-        const string JobTemplate = @"#!/bin/bash -login
+        private const string JobTemplate = @"#!/bin/bash -login
 #PBS -N milkrun-simulation-batch-BATCH_NUM
 #PBS -M andre.schnabel@prod.uni-hannover.de
 #PBS -m a
@@ -20,15 +20,15 @@ dotnet MilkrunOptimizer.dll BatchSimulation From=SEED_LB_INCL To=SEED_UB_INCL
 
         public static void GenerateJobs(int numInstancesPerBatch = 1000, int numBatches = 1000, int offset = 0)
         {
-            for (int i = 0; i < numBatches; i++)
+            for (var i = 0; i < numBatches; i++)
             {
-                int seedLbIncl = numInstancesPerBatch * i;
-                int seedUbIncl = seedLbIncl + numInstancesPerBatch - 1;
-                string ostr = JobTemplate
+                var seedLbIncl = numInstancesPerBatch * i;
+                var seedUbIncl = seedLbIncl + numInstancesPerBatch - 1;
+                var ostr = JobTemplate
                     .Replace("SEED_LB_INCL", (offset + seedLbIncl).ToString())
                     .Replace("SEED_UB_INCL", (offset + seedUbIncl).ToString())
                     .Replace("BATCH_NUM", (i + 1).ToString());
-                Utils.WriteUnixStyle($"job_batch_{i+1}_generated.sh", ostr);
+                Utils.WriteUnixStyle($"job_batch_{i + 1}_generated.sh", ostr);
             }
         }
     }

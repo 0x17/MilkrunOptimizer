@@ -24,7 +24,7 @@ namespace MilkrunOptimizer.Model
         {
             unchecked
             {
-                var hashCode = (Buffers != null ? Buffers.GetHashCode() : 0);
+                var hashCode = Buffers != null ? Buffers.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (Machines != null ? Machines.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ MilkRunCycleLength;
                 hashCode = (hashCode * 397) ^ NumBuffers;

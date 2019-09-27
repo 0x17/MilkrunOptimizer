@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.Persistence;
 
@@ -24,8 +24,7 @@ namespace MilkrunOptimizer.TrainingDataGeneration
 
         public static float ProductionRateForConfiguration(FlowlineConfiguration flc)
         {
-            
-            string tmpFilenameBase = $"temp_hash_{flc.GetHashCode()}";
+            var tmpFilenameBase = $"temp_hash_{flc.GetHashCode()}";
             InstanceWriter.WriteInstanceToFile(flc, tmpFilenameBase + ".mrn");
             RunSimulationExecutable(tmpFilenameBase);
             var productionRate = ResultParser.ProductionRateFromResultFile(tmpFilenameBase + ".stb");
@@ -44,9 +43,9 @@ namespace MilkrunOptimizer.TrainingDataGeneration
             }
             catch (Exception)
             {
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
                 Console.WriteLine($"Retrying delete operation for {path}, remaining retry count is {maxRetries}...");
-                RetryDelete(path, maxRetries-1);
+                RetryDelete(path, maxRetries - 1);
             }
         }
 
