@@ -56,11 +56,19 @@ namespace MilkrunOptimizer.NeuralNetwork
             };
         }
 
-        public static Sequential TrainNetworkWithData(TrainingData data)
+        public static Sequential TrainNetworkWithData(TrainingData train, TrainingData validation = null)
         {
-            var xs = XsFromTrainingData(data);
-            var ysBase = data.Samples.Select(sample => sample.ProductionRate).ToArray();
-            NDarray ys = np.array(ysBase);
+            var trainXs = XsFromTrainingData(train);
+            var trainYsBase = train.Samples.Select(sample => sample.ProductionRate).ToArray();
+            NDarray trainYs = np.array(trainYsBase);
+
+            NDarray validationXs = null, validationYs = null;
+            if (validation != null)
+            {
+                validationXs = XsFromTrainingData(validation);
+                var validationYsBase = validation.Samples.Select(sample => sample.ProductionRate).ToArray();
+                validationYs = np.array(validationYsBase);
+            }
 
             var model = new Sequential();
             model.Add(new Dense(256, NumFeatures, "relu", kernel_initializer: "uniform"));
@@ -68,11 +76,24 @@ namespace MilkrunOptimizer.NeuralNetwork
             foreach (var size in hiddenLayerSizes)
                 model.Add(new Dense(size, activation: "relu", kernel_initializer: "uniform"));
             model.Add(new Dense(1, activation: "sigmoid", kernel_initializer: "uniform"));
-            model.Compile("RMSprop", "mape", new string[] { });
+            model.Compile("adam", "mape", new string[] { });
             model.Summary();
 
-            model.Fit(xs, ys, 128, 100, 2, shuffle: false);
-            model.Save("trained_model.hdf5");
+            const int batchSize = 10;
+            const int epochs = 1000;
+            const int verbose = 2;
+            const bool shuffle = false;
+
+            if (validation == null)
+            {
+                model.Fit(trainXs, trainYs, batchSize, epochs, verbose, shuffle: shuffle);
+            }
+            else
+            {
+                var validationData = new NDarray[2] {validationXs, validationYs};
+                model.Fit(trainXs, trainYs, batchSize, epochs, verbose, shuffle: shuffle,
+                    validation_data: validationData);
+            }
 
             return model;
         }

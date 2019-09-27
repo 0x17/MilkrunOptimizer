@@ -15,5 +15,14 @@ namespace MilkrunOptimizer.Model
         [DataMember] [ProtoMember(1)] public List<float> ProcessingRates;
 
         [DataMember] [ProtoMember(4)] public float ProductionRate;
+
+        public override string ToString()
+        {
+            var bsizes = string.Join(",", BufferSizes);
+            var prates = string.Join(",", ProcessingRates);
+            var mratios = string.Join(",", MaterialRatios);
+            return
+                $"BufferSizes: {bsizes}; MaterialRatios: {mratios}; ProcessingRates: {prates}; ProductionRate: {ProductionRate}";
+        }
     }
 }

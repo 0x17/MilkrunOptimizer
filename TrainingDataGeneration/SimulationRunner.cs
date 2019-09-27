@@ -45,7 +45,8 @@ namespace MilkrunOptimizer.TrainingDataGeneration
                 StartInfo =
                 {
                     FileName = binaryPath,
-                    Arguments = lineBaseFilename
+                    Arguments = lineBaseFilename,
+                    RedirectStandardOutput = true
                 }
             };
             proc.Start();
