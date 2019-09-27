@@ -19,5 +19,19 @@ namespace MilkrunOptimizer.Model
         [DataMember] [ProtoMember(3)] public int NumMachines;
 
         [DataMember] [ProtoMember(1)] public float RequiredRelativeMarginOfError;
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Buffers != null ? Buffers.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Machines != null ? Machines.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ MilkRunCycleLength;
+                hashCode = (hashCode * 397) ^ NumBuffers;
+                hashCode = (hashCode * 397) ^ NumMachines;
+                hashCode = (hashCode * 397) ^ RequiredRelativeMarginOfError.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
+using MilkrunOptimizer.Cluster;
 using MilkrunOptimizer.NeuralNetwork;
 using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
@@ -21,19 +23,37 @@ namespace MilkrunOptimizer
             Console.WriteLine("Predicted rate is {0}", rate);
         }
 
-        private static void GenerateTrainingData()
+        private static void GenerateTrainingData(int from, int to)
         {
-            var td = BatchSimulator.LinesFromSeedRange(1, 10000);
-            TrainingDataPersistence.SaveToDisk(td, "10klines.bin");
+            var td = BatchSimulator.LinesFromSeedRange(from, to);
+            string  outFilename = $"results_from_{from}_to_{to}.bin";
+            TrainingDataPersistence.SaveToDisk(td, outFilename);
         }
         
         private static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            
-            GenerateTrainingData();
-            
+            if (args.Contains("BatchSimulation"))
+            {
+                int fromSeed = 1, toSeed = 10;
+                foreach (string arg in args)
+                {
+                    if (arg.StartsWith("From="))
+                        fromSeed = int.Parse(arg.Split("=")[1]);
+                    if (arg.StartsWith("To="))
+                        toSeed = int.Parse(arg.Split("=")[1]);
+                }
+
+                GenerateTrainingData(fromSeed, toSeed);
+            } else if (args.Contains("JobGeneration"))
+            {
+                JobGenerator.GenerateJobs();
+            }
+            else
+            {
+                Console.WriteLine("Nothing to do... please use action BatchSimulation or JobGeneration");
+            }
 
             /*foreach (var sample in td.Samples)
             {

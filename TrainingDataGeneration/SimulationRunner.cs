@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.Persistence;
@@ -22,13 +24,30 @@ namespace MilkrunOptimizer.TrainingDataGeneration
 
         public static float ProductionRateForConfiguration(FlowlineConfiguration flc)
         {
-            const string tmpFilenameBase = "temp";
+            
+            string tmpFilenameBase = $"temp_hash_{flc.GetHashCode()}";
             InstanceWriter.WriteInstanceToFile(flc, tmpFilenameBase + ".mrn");
             RunSimulationExecutable(tmpFilenameBase);
             var productionRate = ResultParser.ProductionRateFromResultFile(tmpFilenameBase + ".stb");
             var extensions = new List<string> {".mrn", ".stb"};
-            extensions.ForEach(ext => File.Delete(tmpFilenameBase + ext));
+            extensions.ForEach(ext => RetryDelete(tmpFilenameBase + ext));
             return productionRate;
+        }
+
+        private static void RetryDelete(string path, int maxRetries = 100)
+        {
+            if (maxRetries == 0)
+                return;
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception)
+            {
+                System.Threading.Thread.Sleep(1000);
+                Console.WriteLine($"Retrying delete operation for {path}, remaining retry count is {maxRetries}...");
+                RetryDelete(path, maxRetries-1);
+            }
         }
 
         private static string GetPathForBinaryForThisSystem()

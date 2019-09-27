@@ -17,7 +17,7 @@ namespace MilkrunOptimizer.TrainingDataGeneration
                     var estimatedTotalTime =
                         (long) Math.Round((double) (sw.ElapsedMilliseconds * (1.0f / progress) - 1.0f));
                     var eta = estimatedTotalTime - sw.ElapsedMilliseconds;
-                    etaStr = $"ETA {eta / 1000.0f / 3600.0f} hours";
+                    etaStr = $"ETA {eta / 1000.0f / 3600.0f} hours or {eta / 1000.0f / 60.0f} minutes";
                 }
 
                 Console.Write("\rSimulation progress {0}... {1}", progress, etaStr);
