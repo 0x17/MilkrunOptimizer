@@ -2,12 +2,10 @@
 using System.Runtime.Serialization;
 using ProtoBuf;
 
-namespace MilkrunOptimizer.Model
-{
+namespace MilkrunOptimizer.Model {
     [DataContract]
     [ProtoContract]
-    public class FlowlineConfiguration
-    {
+    public class FlowlineConfiguration {
         [DataMember] [ProtoMember(6)] public List<Buffer> Buffers;
 
         [DataMember] [ProtoMember(5)] public List<Machine> Machines;
@@ -20,10 +18,8 @@ namespace MilkrunOptimizer.Model
 
         [DataMember] [ProtoMember(1)] public float RequiredRelativeMarginOfError;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
+        public override int GetHashCode() {
+            unchecked {
                 var hashCode = Buffers != null ? Buffers.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (Machines != null ? Machines.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ MilkRunCycleLength;

@@ -3,17 +3,13 @@ using localsolver;
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.NeuralNetwork;
 
-namespace MilkrunOptimizer.Optimization
-{
-    public static class LocalSolverOptimizer
-    {
-        public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem)
-        {
+namespace MilkrunOptimizer.Optimization {
+    public static class LocalSolverOptimizer {
+        public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem) {
             var numMachines = problem.ProcessingRates.Count;
             var numBuffers = problem.BufferCostFactors.Count;
             var solution = new MilkrunBufferAllocationSolution();
-            using (var ls = new LocalSolver())
-            {
+            using (var ls = new LocalSolver()) {
                 var model = ls.GetModel();
 
                 var milkrunCycleLength = model.Int(1, 120);

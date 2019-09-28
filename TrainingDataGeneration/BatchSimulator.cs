@@ -3,17 +3,12 @@ using System.Diagnostics;
 using System.Linq;
 using MilkrunOptimizer.Model;
 
-namespace MilkrunOptimizer.TrainingDataGeneration
-{
-    public static class BatchSimulator
-    {
-        public static Sample SingleLine(int seed, float? progress = null, Stopwatch sw = null)
-        {
-            if (progress != null)
-            {
+namespace MilkrunOptimizer.TrainingDataGeneration {
+    public static class BatchSimulator {
+        public static Sample SingleLine(int seed, float? progress = null, Stopwatch sw = null) {
+            if (progress != null) {
                 var etaStr = "";
-                if (sw != null)
-                {
+                if (sw != null) {
                     var estimatedTotalTime =
                         (long) Math.Round((double) (sw.ElapsedMilliseconds * (1.0f / progress) - 1.0f));
                     var eta = estimatedTotalTime - sw.ElapsedMilliseconds;
@@ -30,12 +25,10 @@ namespace MilkrunOptimizer.TrainingDataGeneration
             return SampleForLineWithRate(flc, rate);
         }
 
-        public static TrainingData LinesFromSeedRange(int seedLbIncl, int seedUbIncl)
-        {
+        public static TrainingData LinesFromSeedRange(int seedLbIncl, int seedUbIncl) {
             var sw = new Stopwatch();
             sw.Start();
-            var td = new TrainingData
-            {
+            var td = new TrainingData {
                 Samples = Enumerable.Range(seedLbIncl, seedUbIncl - seedLbIncl + 1).Select((seed, ix) =>
                     SingleLine(seed, (seed - seedLbIncl + 1) / (float) (seedUbIncl - seedLbIncl + 1), sw)).ToList()
             };
@@ -43,10 +36,8 @@ namespace MilkrunOptimizer.TrainingDataGeneration
             return td;
         }
 
-        private static Sample SampleForLineWithRate(FlowlineConfiguration flc, float rate)
-        {
-            var sample = new Sample
-            {
+        private static Sample SampleForLineWithRate(FlowlineConfiguration flc, float rate) {
+            var sample = new Sample {
                 BufferSizes = flc.Buffers.Select(buf => buf.Size).ToList(),
                 ProcessingRates = flc.Machines.Select(machine => machine.ProcessingRate).ToList(),
                 MaterialRatios = flc.Machines

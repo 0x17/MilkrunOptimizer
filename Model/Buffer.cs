@@ -1,12 +1,10 @@
 ﻿using System.Runtime.Serialization;
 using ProtoBuf;
 
-namespace MilkrunOptimizer.Model
-{
+namespace MilkrunOptimizer.Model {
     [DataContract]
     [ProtoContract]
-    public class Buffer
-    {
+    public class Buffer {
         [DataMember] [ProtoMember(4)] public int DownMachine;
 
         [DataMember] [ProtoMember(1)] public int NumMachinesSurrounding;

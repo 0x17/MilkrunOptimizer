@@ -8,22 +8,17 @@ using System.Threading;
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.Persistence;
 
-namespace MilkrunOptimizer.TrainingDataGeneration
-{
-    public static class SimulationRunner
-    {
-        private static readonly Dictionary<string, string> SimulationBinaryPaths = new Dictionary<string, string>
-        {
-            {"Darwin", "/Users/andreschnabel/Seafile/Dropbox/HelberSimulation/FlowLineOptimizer/clustersim/Simulation"},
-            {
+namespace MilkrunOptimizer.TrainingDataGeneration {
+    public static class SimulationRunner {
+        private static readonly Dictionary<string, string> SimulationBinaryPaths = new Dictionary<string, string> {
+            {"Darwin", "/Users/andreschnabel/Seafile/Dropbox/HelberSimulation/FlowLineOptimizer/clustersim/Simulation"}, {
                 "Windows",
                 "C:\\Users\\Andre\\Seafile\\Dropbox\\HelberSimulation\\FlowLineOptimizer\\clustersim\\SimulationWindows.exe"
             },
             {"Linux", "./Simulation"}
         };
 
-        public static float ProductionRateForConfiguration(FlowlineConfiguration flc)
-        {
+        public static float ProductionRateForConfiguration(FlowlineConfiguration flc) {
             var tmpFilenameBase = $"temp_hash_{flc.GetHashCode()}";
             InstanceWriter.WriteInstanceToFile(flc, tmpFilenameBase + ".mrn");
             RunSimulationExecutable(tmpFilenameBase);
@@ -33,35 +28,28 @@ namespace MilkrunOptimizer.TrainingDataGeneration
             return productionRate;
         }
 
-        private static void RetryDelete(string path, int maxRetries = 100)
-        {
+        private static void RetryDelete(string path, int maxRetries = 100) {
             if (maxRetries == 0)
                 return;
-            try
-            {
+            try {
                 File.Delete(path);
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 Thread.Sleep(1000);
                 Console.WriteLine($"Retrying delete operation for {path}, remaining retry count is {maxRetries}...");
                 RetryDelete(path, maxRetries - 1);
             }
         }
 
-        private static string GetPathForBinaryForThisSystem()
-        {
+        private static string GetPathForBinaryForThisSystem() {
             var osNameAndVersion = RuntimeInformation.OSDescription;
             return SimulationBinaryPaths.First(pair => osNameAndVersion.Contains(pair.Key)).Value;
         }
 
-        private static void RunSimulationExecutable(string lineBaseFilename)
-        {
+        private static void RunSimulationExecutable(string lineBaseFilename) {
             var binaryPath = GetPathForBinaryForThisSystem();
-            var proc = new Process
-            {
-                StartInfo =
-                {
+            var proc = new Process {
+                StartInfo = {
                     FileName = binaryPath,
                     Arguments = lineBaseFilename,
                     RedirectStandardOutput = true

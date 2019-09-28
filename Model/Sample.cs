@@ -2,12 +2,10 @@
 using System.Runtime.Serialization;
 using ProtoBuf;
 
-namespace MilkrunOptimizer.Model
-{
+namespace MilkrunOptimizer.Model {
     [DataContract]
     [ProtoContract]
-    public class Sample
-    {
+    public class Sample {
         [DataMember] [ProtoMember(3)] public List<int> BufferSizes;
 
         [DataMember] [ProtoMember(2)] public List<float> MaterialRatios;
@@ -16,8 +14,7 @@ namespace MilkrunOptimizer.Model
 
         [DataMember] [ProtoMember(4)] public float ProductionRate;
 
-        public override string ToString()
-        {
+        public override string ToString() {
             var bsizes = string.Join(",", BufferSizes);
             var prates = string.Join(",", ProcessingRates);
             var mratios = string.Join(",", MaterialRatios);

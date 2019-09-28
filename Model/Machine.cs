@@ -1,12 +1,10 @@
 ﻿using System.Runtime.Serialization;
 using ProtoBuf;
 
-namespace MilkrunOptimizer.Model
-{
+namespace MilkrunOptimizer.Model {
     [DataContract]
     [ProtoContract]
-    public class Machine
-    {
+    public class Machine {
         [DataMember] [ProtoMember(5)] public float CoefficientVariationSquared;
 
         [DataMember] [ProtoMember(2)] public float FailRate;

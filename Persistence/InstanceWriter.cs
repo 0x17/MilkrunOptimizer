@@ -7,26 +7,20 @@ using MilkrunOptimizer.Helpers;
 using MilkrunOptimizer.Model;
 using Buffer = MilkrunOptimizer.Model.Buffer;
 
-namespace MilkrunOptimizer.Persistence
-{
-    public static class InstanceWriter
-    {
-        public static void ToJson(FlowlineConfiguration flc, string path)
-        {
+namespace MilkrunOptimizer.Persistence {
+    public static class InstanceWriter {
+        public static void ToJson(FlowlineConfiguration flc, string path) {
             Utils.SaveObjectAsJson(flc, path);
         }
 
-        public static void WriteInstanceToFile(FlowlineConfiguration flc, string path)
-        {
+        public static void WriteInstanceToFile(FlowlineConfiguration flc, string path) {
             var lines = new List<string>();
 
-            void AddLine(int v)
-            {
+            void AddLine(int v) {
                 lines.Add(v.ToString());
             }
 
-            void AddLineF(float v)
-            {
+            void AddLineF(float v) {
                 lines.Add(v.ToString(CultureInfo.InvariantCulture));
             }
 
@@ -44,10 +38,8 @@ namespace MilkrunOptimizer.Persistence
             File.WriteAllLines(path, lines);
         }
 
-        private static string BufferToLine(Buffer buffer)
-        {
-            int[] firstEntries =
-            {
+        private static string BufferToLine(Buffer buffer) {
+            int[] firstEntries = {
                 buffer.NumMachinesSurrounding,
                 buffer.UpMachine,
                 buffer.Up2Machine,
@@ -62,10 +54,8 @@ namespace MilkrunOptimizer.Persistence
             return string.Join(" ", values);
         }
 
-        private static string MachineToLine(Machine machine)
-        {
-            float[] floatEntries =
-            {
+        private static string MachineToLine(Machine machine) {
+            float[] floatEntries = {
                 machine.FailRate,
                 machine.ReplacementArrivalRate,
                 machine.ProcessingRate,

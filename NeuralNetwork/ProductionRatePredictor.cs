@@ -2,21 +2,16 @@
 using Keras.Models;
 using MilkrunOptimizer.Model;
 
-namespace MilkrunOptimizer.NeuralNetwork
-{
-    public class ProductionRatePredictor
-    {
+namespace MilkrunOptimizer.NeuralNetwork {
+    public class ProductionRatePredictor {
         private readonly BaseModel _model;
 
-        public ProductionRatePredictor(BaseModel model)
-        {
-            this._model = model;
+        public ProductionRatePredictor(BaseModel model) {
+            _model = model;
         }
 
-        public static Sample ConfigToSample(FlowlineConfiguration config)
-        {
-            return new Sample
-            {
+        public static Sample ConfigToSample(FlowlineConfiguration config) {
+            return new Sample {
                 BufferSizes = config.Buffers.Select(buf => buf.Size).ToList(),
                 MaterialRatios = config.Machines
                     .Select(machine => (float) machine.OrderUpToMilkLevel / (float) config.MilkRunCycleLength).ToList(),
@@ -24,13 +19,11 @@ namespace MilkrunOptimizer.NeuralNetwork
             };
         }
 
-        public float PredictConfig(FlowlineConfiguration config)
-        {
+        public float PredictConfig(FlowlineConfiguration config) {
             return Predict(ConfigToSample(config));
         }
 
-        public float Predict(Sample sample)
-        {
+        public float Predict(Sample sample) {
             var arr = _model.Predict(NetworkTrainer.XsFromSample(sample));
             return (float) arr[0, 0];
         }

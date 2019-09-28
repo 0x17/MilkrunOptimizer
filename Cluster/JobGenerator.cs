@@ -1,9 +1,7 @@
 ﻿using MilkrunOptimizer.Helpers;
 
-namespace MilkrunOptimizer.Cluster
-{
-    public class JobGenerator
-    {
+namespace MilkrunOptimizer.Cluster {
+    public class JobGenerator {
         private const string JobTemplate = @"#!/bin/bash -login
 #PBS -N milkrun-simulation-batch-BATCH_NUM
 #PBS -M andre.schnabel@prod.uni-hannover.de
@@ -18,10 +16,8 @@ export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 dotnet MilkrunOptimizer.dll BatchSimulation From=SEED_LB_INCL To=SEED_UB_INCL
 ";
 
-        public static void GenerateJobs(int numInstancesPerBatch = 1000, int numBatches = 1000, int offset = 0)
-        {
-            for (var i = 0; i < numBatches; i++)
-            {
+        public static void GenerateJobs(int numInstancesPerBatch = 1000, int numBatches = 1000, int offset = 0) {
+            for (var i = 0; i < numBatches; i++) {
                 var seedLbIncl = numInstancesPerBatch * i;
                 var seedUbIncl = seedLbIncl + numInstancesPerBatch - 1;
                 var ostr = JobTemplate
