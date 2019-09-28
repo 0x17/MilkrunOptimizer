@@ -41,5 +41,22 @@ namespace MilkrunOptimizer.Helpers
             file.NewLine = "\n";
             file.Write(contents.Replace("\r\n", "\n"));
         }
+        
+        private static Random rand = new Random(23);
+
+        public static void SetSeed(int seed)
+        {
+            rand = new Random(seed);
+        }
+
+        public static int RandInt(int lbIncl, int ubIncl)
+        {
+            return rand.Next(lbIncl, ubIncl+1);
+        }
+
+        public static double RandFloat()
+        {
+            return (float)rand.NextDouble();
+        }
     }
 }

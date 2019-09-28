@@ -17,7 +17,8 @@ namespace MilkrunOptimizer.TrainingDataGeneration
                 RequiredRelativeMarginOfError = 0.005f,
                 NumMachines = 4,
                 NumBuffers = 3,
-                MilkRunCycleLength = rand.Next(30, 120)
+                // add 1 since Random.Next the ub is non inclusive!
+                MilkRunCycleLength = rand.Next(30, 120+1)
             };
 
             var variationMue = Utils.Uniform(rand, 0.0f, 0.2f);

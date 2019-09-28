@@ -12,7 +12,7 @@ namespace MilkrunOptimizer.TrainingDataGeneration
 {
     public static class SimulationRunner
     {
-        private static readonly Dictionary<string, string> simulationBinaryPaths = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> SimulationBinaryPaths = new Dictionary<string, string>
         {
             {"Darwin", "/Users/andreschnabel/Seafile/Dropbox/HelberSimulation/FlowLineOptimizer/clustersim/Simulation"},
             {
@@ -52,7 +52,7 @@ namespace MilkrunOptimizer.TrainingDataGeneration
         private static string GetPathForBinaryForThisSystem()
         {
             var osNameAndVersion = RuntimeInformation.OSDescription;
-            return simulationBinaryPaths.First(pair => osNameAndVersion.Contains(pair.Key)).Value;
+            return SimulationBinaryPaths.First(pair => osNameAndVersion.Contains(pair.Key)).Value;
         }
 
         private static void RunSimulationExecutable(string lineBaseFilename)

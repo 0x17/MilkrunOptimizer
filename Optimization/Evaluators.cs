@@ -8,23 +8,23 @@ namespace MilkrunOptimizer.Optimization
 {
     internal abstract class BaseEvaluator
     {
-        protected readonly FlowlineConfiguration flc;
+        protected readonly FlowlineConfiguration Flc;
 
         public BaseEvaluator(MilkrunBufferAllocationProblem problem)
         {
-            flc = InstanceGenerator.Generate(1);
-            for (var i = 0; i < flc.NumMachines; i++)
-                flc.Machines[i].ProcessingRate = problem.ProcessingRates[i];
+            Flc = InstanceGenerator.Generate(1);
+            for (var i = 0; i < Flc.NumMachines; i++)
+                Flc.Machines[i].ProcessingRate = problem.ProcessingRates[i];
         }
 
         protected void ExtractDataFromContext(LSNativeContext context)
         {
-            flc.MilkRunCycleLength = (int) context.GetIntValue(0);
-            for (var i = 0; i < flc.NumMachines; i++)
-                flc.Machines[i].OrderUpToMilkLevel = (int) context.GetIntValue(1 + i);
+            Flc.MilkRunCycleLength = (int) context.GetIntValue(0);
+            for (var i = 0; i < Flc.NumMachines; i++)
+                Flc.Machines[i].OrderUpToMilkLevel = (int) context.GetIntValue(1 + i);
 
-            for (var i = 0; i < flc.NumBuffers; i++)
-                flc.Buffers[i].Size = (int) context.GetIntValue(1 + flc.NumMachines + i);
+            for (var i = 0; i < Flc.NumBuffers; i++)
+                Flc.Buffers[i].Size = (int) context.GetIntValue(1 + Flc.NumMachines + i);
         }
 
         public abstract double Evaluate(LSNativeContext context);
@@ -39,23 +39,23 @@ namespace MilkrunOptimizer.Optimization
         public override double Evaluate(LSNativeContext context)
         {
             ExtractDataFromContext(context);
-            return SimulationRunner.ProductionRateForConfiguration(flc);
+            return SimulationRunner.ProductionRateForConfiguration(Flc);
         }
     }
 
     internal class NetworkEvaluator : BaseEvaluator
     {
-        private readonly ProductionRatePredictor predictor;
+        private readonly ProductionRatePredictor _predictor;
 
         public NetworkEvaluator(MilkrunBufferAllocationProblem problem, BaseModel model) : base(problem)
         {
-            predictor = new ProductionRatePredictor(model);
+            _predictor = new ProductionRatePredictor(model);
         }
 
         public override double Evaluate(LSNativeContext context)
         {
             ExtractDataFromContext(context);
-            return predictor.PredictConfig(flc);
+            return _predictor.PredictConfig(Flc);
         }
     }
 }

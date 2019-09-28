@@ -6,11 +6,11 @@ namespace MilkrunOptimizer.NeuralNetwork
 {
     public class ProductionRatePredictor
     {
-        private readonly BaseModel model;
+        private readonly BaseModel _model;
 
         public ProductionRatePredictor(BaseModel model)
         {
-            this.model = model;
+            this._model = model;
         }
 
         public static Sample ConfigToSample(FlowlineConfiguration config)
@@ -31,7 +31,7 @@ namespace MilkrunOptimizer.NeuralNetwork
 
         public float Predict(Sample sample)
         {
-            var arr = model.Predict(NetworkTrainer.XsFromSample(sample));
+            var arr = _model.Predict(NetworkTrainer.XsFromSample(sample));
             return (float) arr[0, 0];
         }
     }

@@ -79,8 +79,8 @@ namespace MilkrunOptimizer.NeuralNetwork
             model.Compile("adam", "mape", new string[] { });
             model.Summary();
 
-            const int batchSize = 10;
-            const int epochs = 1000;
+            const int batchSize = 128;
+            const int epochs = 10;
             const int verbose = 2;
             const bool shuffle = false;
 
@@ -90,7 +90,7 @@ namespace MilkrunOptimizer.NeuralNetwork
             }
             else
             {
-                var validationData = new NDarray[2] {validationXs, validationYs};
+                var validationData = new NDarray[] {validationXs, validationYs};
                 model.Fit(trainXs, trainYs, batchSize, epochs, verbose, shuffle: shuffle,
                     validation_data: validationData);
             }
