@@ -2,6 +2,7 @@
 using localsolver;
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.NeuralNetwork;
+using MilkrunOptimizer.Optimization.Evaluators;
 
 namespace MilkrunOptimizer.Optimization {
     public static class LocalSolverOptimizer {
