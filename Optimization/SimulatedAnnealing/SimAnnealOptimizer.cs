@@ -8,7 +8,7 @@ using MilkrunOptimizer.NeuralNetwork;
 namespace MilkrunOptimizer.Optimization.SimulatedAnnealing {
     public class SimAnnealOptimizer {
         public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem,
-            ProductionRatePredictor predictor, int numIterations, int temp0) {
+            ProductionRatePredictor predictor, int numIterations, float temp0) {
             Utils.SetSeed(23);
             var sw = new Stopwatch();
 

@@ -5,9 +5,10 @@ namespace MilkrunOptimizer.Helpers {
     public struct StructuredArguments {
         private readonly string _action;
         private readonly Dictionary<string, string> _pairs;
-        
+
         public static StructuredArguments FromStrings(string[] args) {
-            return new StructuredArguments(args[0], args.Skip(1).ToDictionary(arg => arg.Split("=")[0], arg => arg.Split("=")[1]));
+            return new StructuredArguments(args[0],
+                args.Skip(1).ToDictionary(arg => arg.Split("=")[0], arg => arg.Split("=")[1]));
         }
 
         public StructuredArguments(string action, Dictionary<string, string> pairs) {
