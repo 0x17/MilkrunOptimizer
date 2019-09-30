@@ -1,6 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading;
 using Keras.Models;
 using MilkrunOptimizer.Model;
+using Numpy;
+using Python.Runtime;
 
 namespace MilkrunOptimizer.NeuralNetwork {
     public class ProductionRatePredictor {
@@ -22,10 +26,15 @@ namespace MilkrunOptimizer.NeuralNetwork {
         public float PredictConfig(FlowlineConfiguration config) {
             return Predict(ConfigToSample(config));
         }
-
+        
         public float Predict(Sample sample) {
-            var arr = _model.Predict(NetworkTrainer.XsFromSample(sample));
-            return (float) arr[0, 0];
+            float pr;
+            using(Py.GIL()) {
+                var xs = NetworkTrainer.XsFromSample(sample);
+                var arr = _model.Predict(xs, verbose:0);
+                pr = (float) arr[0, 0];
+            }
+            return pr;
         }
     }
 }

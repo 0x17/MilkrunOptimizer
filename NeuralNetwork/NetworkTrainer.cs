@@ -19,13 +19,13 @@ namespace MilkrunOptimizer.NeuralNetwork {
             var numSamples = data.Samples.Count;
             var xsBase = new float[numSamples, NumFeatures];
 
-            for (var i = 0; i < numSamples; i++)
-            for (var j = 0; j < NumFeatures; j++) {
-                var sample = data.Samples[i];
-                xsBase[i, j] = j < 4 ? sample.ProcessingRates[j] :
-                    j < 8 ? sample.MaterialRatios[j - 4] : sample.BufferSizes[j - 8];
+            for (var i = 0; i < numSamples; i++) {
+                for (var j = 0; j < NumFeatures; j++) {
+                    var sample = data.Samples[i];
+                    xsBase[i, j] = j < 4 ? sample.ProcessingRates[j] :
+                        j < 8 ? sample.MaterialRatios[j - 4] : sample.BufferSizes[j - 8];
+                }
             }
-
             return np.array(xsBase);
         }
 
@@ -47,43 +47,59 @@ namespace MilkrunOptimizer.NeuralNetwork {
                 Validation = validation
             };
         }
+        
+        private struct KerasTrainValidationData {
+            public NDarray TrainXs, TrainYs;
+            public NDarray ValidationXs, ValidationYs;
+        }
 
         public static Sequential TrainNetworkWithData(TrainingData train, TrainingData validation = null) {
-            var trainXs = XsFromTrainingData(train);
-            var trainYsBase = train.Samples.Select(sample => sample.ProductionRate).ToArray();
-            NDarray trainYs = np.array(trainYsBase);
-
-            NDarray validationXs = null, validationYs = null;
-            if (validation != null) {
-                validationXs = XsFromTrainingData(validation);
-                var validationYsBase = validation.Samples.Select(sample => sample.ProductionRate).ToArray();
-                validationYs = np.array(validationYsBase);
-            }
-
-            var model = new Sequential();
-            model.Add(new Dense(256, NumFeatures, "relu", kernel_initializer: "uniform"));
-            var hiddenLayerSizes = new List<int> {128, 64, 32, 16};
-            foreach (var size in hiddenLayerSizes)
-                model.Add(new Dense(size, activation: "relu", kernel_initializer: "uniform"));
-            model.Add(new Dense(1, activation: "sigmoid", kernel_initializer: "uniform"));
-            model.Compile("adam", "mape", new string[] { });
-            model.Summary();
-
-            const int batchSize = 128;
-            const int epochs = 10;
+            const int batchSize = 1000;
+            const int epochs = 100;
             const int verbose = 2;
             const bool shuffle = false;
-
+            
+            var data = TrainValidationSamplesToNumPyTypes(train, validation);
+            
+            Sequential BuildNetworkTopology() {
+                var dnn = new Sequential();
+                dnn.Add(new Dense(200, NumFeatures, "relu", kernel_initializer: "uniform"));
+                var hiddenLayerSizes = new List<int> {100, 100, 100, 100, 100, 100, 100, 100, 100};
+                foreach (var size in hiddenLayerSizes)
+                    dnn.Add(new Dense(size, activation: "relu", kernel_initializer: "uniform"));
+                dnn.Add(new Dense(1, activation: "sigmoid", kernel_initializer: "uniform"));
+                return dnn;
+            }
+            
+            var model = BuildNetworkTopology();
+            model.Compile("adam", "mape", new string[] { });
+            model.Summary();
+            
             if (validation == null) {
-                model.Fit(trainXs, trainYs, batchSize, epochs, verbose, shuffle: shuffle);
+                model.Fit(data.TrainXs, data.TrainYs, batchSize, epochs, verbose, shuffle: shuffle);
             }
             else {
-                var validationData = new[] {validationXs, validationYs};
-                model.Fit(trainXs, trainYs, batchSize, epochs, verbose, shuffle: shuffle,
-                    validation_data: validationData);
+                var validationData = new[] {data.ValidationXs, data.ValidationYs};
+                model.Fit(data.TrainXs, data.TrainYs, batchSize, epochs, verbose, shuffle: shuffle, validation_data: validationData);
             }
 
             return model;
+        }
+
+        private static KerasTrainValidationData TrainValidationSamplesToNumPyTypes(TrainingData train, TrainingData validation) {
+            var trainYsBase = train.Samples.Select(sample => sample.ProductionRate).ToArray();
+            KerasTrainValidationData data = new KerasTrainValidationData {
+                TrainXs = XsFromTrainingData(train),
+                TrainYs = np.array(trainYsBase)
+            };
+
+            if (validation != null) {
+                data.ValidationXs = XsFromTrainingData(validation);
+                var validationYsBase = validation.Samples.Select(sample => sample.ProductionRate).ToArray();
+                data.ValidationYs = np.array(validationYsBase);
+            }
+
+            return data;
         }
 
         public static BaseModel LoadFromDisk(string path) {

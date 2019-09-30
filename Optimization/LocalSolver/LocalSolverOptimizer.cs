@@ -1,0 +1,60 @@
+﻿using System.Linq;
+using MilkrunOptimizer.Model;
+using MilkrunOptimizer.NeuralNetwork;
+using MilkrunOptimizer.Optimization.LocalSolver.Evaluators;
+using Python.Runtime;
+
+namespace MilkrunOptimizer.Optimization.LocalSolver {
+    public static class LocalSolverOptimizer {
+        public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem,
+            ProductionRatePredictor predictor) {
+            
+            PythonEngine.BeginAllowThreads();
+            
+            using var ls = new localsolver.LocalSolver();
+            var model = ls.GetModel();
+
+            var milkrunCycleLength = model.Int(1, 120);
+            var orderUpToLevels = Enumerable.Range(0, problem.ProcessingRates.Count).Select(i => model.Int(1, 400))
+                .ToList();
+            var bufferSizes = Enumerable.Range(0, problem.BufferCostFactors.Count).Select(i => model.Int(0, 500))
+                .ToList();
+
+            void SetupMinimumProductionRateConstraint() {
+                var evaluator = new NetworkEvaluator(problem, predictor);
+                var func = model.CreateNativeFunction(evaluator.Evaluate);
+                var rateEvalCall = model.Call(func);
+                rateEvalCall.AddOperand(milkrunCycleLength);
+                rateEvalCall.AddOperands(orderUpToLevels);
+                rateEvalCall.AddOperands(bufferSizes);
+                model.Constraint(rateEvalCall >= problem.MinProductionRate);
+            }
+
+            void SetupObjectiveFunction() {
+                var milkrunCycleCosts = 1.0f / milkrunCycleLength * problem.MilkRunInverseCostFactor;
+                var bufferCosts = model.Sum(bufferSizes.Select((bsize, ix) => bsize * problem.BufferCostFactors[ix]));
+                var orderUpToCosts =
+                    model.Sum(orderUpToLevels.Select((level, ix) => level * problem.OrderUpToCostFactors[ix]));
+                model.Minimize(milkrunCycleCosts + bufferCosts + orderUpToCosts);
+            }
+
+            SetupMinimumProductionRateConstraint();
+            SetupObjectiveFunction();
+            model.Close();
+            
+            bufferSizes.ForEach(bufferSize => bufferSize.SetValue(500));
+            orderUpToLevels.ForEach(oul => oul.SetValue(100));
+            milkrunCycleLength.SetValue(1);
+
+            ls.GetParam().SetTimeLimit(10);
+            ls.GetParam().SetNbThreads(1);
+            ls.Solve();
+
+            return new MilkrunBufferAllocationSolution {
+                BufferSizes = bufferSizes.Select(bufferSize => (int) bufferSize.GetIntValue()).ToList(),
+                MilkRunCycleLength = (int) milkrunCycleLength.GetIntValue(),
+                OrderUpToLevels = orderUpToLevels.Select(oul => (int) oul.GetIntValue()).ToList()
+            };
+        }
+    }
+}

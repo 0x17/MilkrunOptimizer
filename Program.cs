@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using MilkrunOptimizer.Cluster;
 using MilkrunOptimizer.Helpers;
+using MilkrunOptimizer.Model;
 using MilkrunOptimizer.NeuralNetwork;
 using MilkrunOptimizer.Optimization;
+using MilkrunOptimizer.Optimization.LocalSolver;
 using MilkrunOptimizer.Optimization.SimulatedAnnealing;
 using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
+using Python.Runtime;
 
 namespace MilkrunOptimizer {
     internal static class Program {
@@ -58,21 +62,33 @@ namespace MilkrunOptimizer {
             }
 
             void Optimize() {
+                var methodName = structuredArgs.AsStringOrDefault("Method", "LocalSolver");
                 var problem = ProblemInstanceGenerator.Generate(23);
                 var predictor = new ProductionRatePredictor(NetworkTrainer.LoadFromDisk("model.hdf5"));
-                var sol = SimAnnealOptimizer.Solve(problem, predictor, 1000, 1.0f);
-                Console.WriteLine("Simulated annealing solution = {0}", sol);
+                MilkrunBufferAllocationSolution sol = null;
+                switch (methodName) {
+                    case "SimulatedAnnealing":
+                        sol = SimAnnealOptimizer.Solve(problem, predictor, 1000, 1.0f);
+                        break;
+                    case "LocalSolver":
+                        sol = LocalSolverOptimizer.Solve(problem, predictor);
+                        break;
+                }
+                Console.WriteLine("Solution of optimization = {0}", sol);
             }
 
-            var actionMappings = new Dictionary<string, Action> {
-                {"BatchSimulation", BatchSimulation},
-                {"TrainNetwork", TrainNetwork},
-                {"JobGeneration", JobGeneration},
-                {"MergeResults", MergeResults},
-                {"PrintData", PrintData},
-                {"Optimize", Optimize}
+            var availableActions = new List<Action> {
+                BatchSimulation,
+                TrainNetwork,
+                JobGeneration,
+                MergeResults,
+                PrintData,
+                Optimize
             };
 
+            var actionMappings =
+                availableActions.ToDictionary(action => Utils.NameOfLocalActionFunction("ParseArgs", action),
+                    action => action);
             if (args.Length >= 1) {
                 var action = structuredArgs.GetAction();
                 if (actionMappings.ContainsKey(action)) {

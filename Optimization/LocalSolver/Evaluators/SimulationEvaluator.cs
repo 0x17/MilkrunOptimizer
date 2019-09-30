@@ -2,7 +2,7 @@
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.TrainingDataGeneration;
 
-namespace MilkrunOptimizer.Optimization.Evaluators {
+namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
     internal class SimulationEvaluator : BaseEvaluator {
         public SimulationEvaluator(MilkrunBufferAllocationProblem problem) : base(problem) {
         }

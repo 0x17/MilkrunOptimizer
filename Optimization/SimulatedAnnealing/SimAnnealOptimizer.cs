@@ -11,6 +11,7 @@ namespace MilkrunOptimizer.Optimization.SimulatedAnnealing {
             ProductionRatePredictor predictor, int numIterations, float temp0) {
             Utils.SetSeed(23);
             var sw = new Stopwatch();
+            sw.Start();
 
             var curSol = GenerateStartSolution(problem.ProcessingRates.Count);
             var curSolObj = curSol.Costs(problem);

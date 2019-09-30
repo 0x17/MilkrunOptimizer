@@ -2,7 +2,7 @@
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.TrainingDataGeneration;
 
-namespace MilkrunOptimizer.Optimization.Evaluators {
+namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
     internal abstract class BaseEvaluator {
         protected readonly FlowlineConfiguration Flc;
 

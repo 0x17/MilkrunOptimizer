@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Json;
+using System.Text.RegularExpressions;
 
 namespace MilkrunOptimizer.Helpers {
     public static class Utils {
@@ -47,6 +49,13 @@ namespace MilkrunOptimizer.Helpers {
 
         public static double RandFloat() {
             return (float) rand.NextDouble();
+        }
+
+        public static string NameOfLocalActionFunction(string parentFunctionName, Action action) {
+            var rx = new Regex(@"\<" + parentFunctionName + @"\>g__(\w+)\|\d+", RegexOptions.Compiled);
+            var fullName = action.GetMethodInfo().Name;
+            var m = rx.Match(fullName);
+            return m.Groups[1].Value;
         }
     }
 }
