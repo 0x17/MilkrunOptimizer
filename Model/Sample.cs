@@ -24,7 +24,7 @@ namespace MilkrunOptimizer.Model {
         }
 
         public List<float> ToFloats() {
-            return ProcessingRates.Concat(MaterialRatios).Concat(BufferSizes.Select(b => (float)b)).ToList();
+            return ProcessingRates.Concat(MaterialRatios).Concat(BufferSizes.Select(b => (float) b)).ToList();
         }
     }
 }

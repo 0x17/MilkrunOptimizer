@@ -6,7 +6,7 @@ namespace MilkrunOptimizer.Optimization {
         public float PredictConfig(FlowlineConfiguration config) {
             return Predict(ConfigToSample(config));
         }
-        
+
         public abstract float Predict(Sample sample);
 
         private Sample ConfigToSample(FlowlineConfiguration config) {

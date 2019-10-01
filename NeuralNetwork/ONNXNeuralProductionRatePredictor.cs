@@ -7,7 +7,7 @@ using MilkrunOptimizer.Optimization;
 
 namespace MilkrunOptimizer.NeuralNetwork {
     public class OnnxNeuralProductionRatePredictor : BaseProductionRatePredictor {
-        private InferenceSession _session;
+        private readonly InferenceSession _session;
 
         public OnnxNeuralProductionRatePredictor(string path) {
             _session = new InferenceSession(path);

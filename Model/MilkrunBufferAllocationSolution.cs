@@ -15,7 +15,8 @@ namespace MilkrunOptimizer.Model {
         public override string ToString() {
             var bsizes = string.Join(",", BufferSizes);
             var levels = string.Join(",", OrderUpToLevels);
-            return $"{nameof(BufferSizes)}: {bsizes}, {nameof(MilkRunCycleLength)}: {MilkRunCycleLength}, {nameof(OrderUpToLevels)}: {levels}";
+            return
+                $"{nameof(BufferSizes)}: {bsizes}, {nameof(MilkRunCycleLength)}: {MilkRunCycleLength}, {nameof(OrderUpToLevels)}: {levels}";
         }
     }
 }

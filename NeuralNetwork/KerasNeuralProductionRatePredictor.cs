@@ -10,14 +10,15 @@ namespace MilkrunOptimizer.NeuralNetwork {
         public KerasNeuralProductionRatePredictor(BaseModel model) {
             _model = model;
         }
-        
+
         public override float Predict(Sample sample) {
             float pr;
-            using(Py.GIL()) {
+            using (Py.GIL()) {
                 var xs = NetworkTrainer.XsFromSample(sample);
-                var arr = _model.Predict(xs, verbose:0);
+                var arr = _model.Predict(xs, verbose: 0);
                 pr = (float) arr[0, 0];
             }
+
             return pr;
         }
     }

@@ -12,7 +12,6 @@ using MilkrunOptimizer.Optimization.LocalSolver;
 using MilkrunOptimizer.Optimization.SimulatedAnnealing;
 using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
-using Python.Runtime;
 
 namespace MilkrunOptimizer {
     internal static class Program {
@@ -76,6 +75,7 @@ namespace MilkrunOptimizer {
                         sol = LocalSolverOptimizer.Solve(problem, predictor);
                         break;
                 }
+
                 Console.WriteLine("Solution of optimization = {0}", sol);
             }
 

@@ -6,8 +6,9 @@ using MilkrunOptimizer.NeuralNetwork;
 namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
     internal class NetworkEvaluator : BaseEvaluator {
         private readonly BaseProductionRatePredictor _predictor;
-        
-        public NetworkEvaluator(MilkrunBufferAllocationProblem problem, BaseProductionRatePredictor predictor) : base(problem) {
+
+        public NetworkEvaluator(MilkrunBufferAllocationProblem problem, BaseProductionRatePredictor predictor) :
+            base(problem) {
             _predictor = predictor;
         }
 
