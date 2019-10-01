@@ -16,5 +16,16 @@ namespace MilkrunOptimizer.Model {
         [DataMember] [ProtoMember(4)] public float ProcessingRate;
 
         [DataMember] [ProtoMember(3)] public float ReplacementArrivalRate;
+        
+        public static Machine ConstructDefaultMachine(float processingRate, int orderUpLevel) {
+            return new Machine {
+                CoefficientVariationSquared = 1.0f,
+                OperationalUnits = 1,
+                FailRate = 0.01f,
+                ReplacementArrivalRate = -0.1f,
+                ProcessingRate = processingRate,
+                OrderUpToMilkLevel = orderUpLevel
+            };
+        }
     }
 }

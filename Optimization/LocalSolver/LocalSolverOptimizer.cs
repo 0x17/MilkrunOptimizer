@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MilkrunOptimizer.Model;
 using MilkrunOptimizer.Optimization.LocalSolver.Evaluators;
 using Python.Runtime;
@@ -19,7 +20,14 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
                 .ToList();
             var bufferSizes = Enumerable.Range(0, problem.BufferCostFactors.Count).Select(i => model.Int(0, 500))
                 .ToList();
-
+            
+            void SetupBoundsForMaterialRatio() {
+                for(int i=0; i<orderUpToLevels.Count; i++) {
+                    model.AddConstraint(milkrunCycleLength * problem.ProcessingRates[i] >= orderUpToLevels[i]);
+                    model.AddConstraint(milkrunCycleLength * problem.MinProductionRate <= orderUpToLevels[i]);
+                }
+            }
+            
             void SetupMinimumProductionRateConstraint() {
                 var evaluator = predictor != null
                     ? (BaseEvaluator) new NetworkEvaluator(problem, predictor)
@@ -42,10 +50,11 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
             
             void SetInitialSolution() {
                 bufferSizes.ForEach(bufferSize => bufferSize.SetValue(500));
-                orderUpToLevels.ForEach(oul => oul.SetValue(100));
-                milkrunCycleLength.SetValue(1);
+                orderUpToLevels.ForEach(oul => oul.SetValue((int)Math.Ceiling(problem.MinProductionRate*100.0f)));
+                milkrunCycleLength.SetValue(100);
             }
 
+            SetupBoundsForMaterialRatio();
             SetupMinimumProductionRateConstraint();
             SetupObjectiveFunction();
             model.Close();

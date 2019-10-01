@@ -16,5 +16,16 @@ namespace MilkrunOptimizer.Model {
         [DataMember] [ProtoMember(3)] public int Up2Machine;
 
         [DataMember] [ProtoMember(2)] public int UpMachine;
+        
+        public static Buffer ConstructDefaultBuffer(int size, int index) {
+            return new Buffer {
+                NumMachinesSurrounding = 2,
+                UpMachine = index+1,
+                Up2Machine = 0,
+                DownMachine = index+2,
+                Size = size,
+                SelectionProbability = 1.0f
+            };
+        }
     }
 }

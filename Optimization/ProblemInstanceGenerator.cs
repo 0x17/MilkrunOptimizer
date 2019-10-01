@@ -17,7 +17,7 @@ namespace MilkrunOptimizer.Optimization {
                     .ToList(),
                 OrderUpToCostFactors = Enumerable.Range(0, numMachines).Select(ix => Utils.Uniform(rand, 10.0f, 100.0f))
                     .ToList(),
-                MilkRunInverseCostFactor = Utils.Uniform(rand, 0.0f, 1.0f)
+                MilkRunInverseCostFactor = Utils.Uniform(rand, 400.0f, 1000.0f)
             };
         }
     }

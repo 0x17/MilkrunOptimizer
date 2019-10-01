@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Microsoft.ML;
+using MilkrunOptimizer.ClassicML;
 using MilkrunOptimizer.Cluster;
 using MilkrunOptimizer.Helpers;
 using MilkrunOptimizer.Model;
@@ -33,7 +35,7 @@ namespace MilkrunOptimizer {
 
             void TrainNetwork() {
                 var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
-                var tvd = NetworkTrainer.Split(td, 0.9f, true);
+                var tvd = MlUtils.Split(td, 0.5f, true);
                 var model = NetworkTrainer.TrainNetworkWithData(tvd.Training, tvd.Validation);
                 model.Save("model.hdf5");
             }
@@ -66,6 +68,7 @@ namespace MilkrunOptimizer {
                 BaseProductionRatePredictor predictor = null;
                 //predictor = new KerasNeuralProductionRatePredictor(ModelPersistence.LoadFromDisk("model.hdf5"));
                 //predictor = new OnnxNeuralProductionRatePredictor("converted.onnx");
+                predictor = new MlProductionRatePredictor("model.zip");
                 MilkrunBufferAllocationSolution sol = null;
                 switch (methodName) {
                     case "SimulatedAnnealing":
@@ -77,6 +80,19 @@ namespace MilkrunOptimizer {
                 }
 
                 Console.WriteLine("Solution of optimization = {0}", sol);
+                Console.WriteLine("Production rate from predictor = {0}", predictor.Predict(sol.ToSample(problem.ProcessingRates)));
+                Console.WriteLine("Production rate from simulation = {0}", SimulationRunner.ProductionRateForConfiguration(sol.ToFlowlineConfiguration(problem.ProcessingRates)));
+                Console.WriteLine("Minimum production rate = {0}", problem.MinProductionRate);
+            }
+
+            void TrainForest() {
+                var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
+                var tvd = MlUtils.Split(td, 0.5f, true);
+                //var model = NetworkTrainer.TrainNetworkWithData(tvd.Training, tvd.Validation);
+                //model.Save("model.hdf5");
+                MLContext context = new MLContext(23);
+                var transformer = ModelTrainer.TrainModelWithData(context, tvd.Training, tvd.Validation, out var schema);
+                context.Model.Save(transformer, schema,"model.zip");
             }
 
             var availableActions = new List<Action> {
@@ -85,7 +101,8 @@ namespace MilkrunOptimizer {
                 JobGeneration,
                 MergeResults,
                 PrintData,
-                Optimize
+                Optimize,
+                TrainForest
             };
 
             var actionMappings =

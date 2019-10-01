@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Keras.Callbacks;
 using Keras.Layers;
 using Keras.Models;
 using MilkrunOptimizer.Model;
@@ -29,27 +30,8 @@ namespace MilkrunOptimizer.NeuralNetwork {
             return np.array(xsBase);
         }
 
-        public static TrainValidationData Split(TrainingData data, float trainPercentage = 0.5f, bool shuffle = false) {
-            var training = new TrainingData {Samples = new List<Sample>()};
-            var validation = new TrainingData {Samples = new List<Sample>()};
-
-            var lastTrainIndex = (int) Math.Round(data.Samples.Count * trainPercentage);
-            for (var i = 0; i < data.Samples.Count; i++) {
-                var sample = data.Samples[i];
-                if (i <= lastTrainIndex)
-                    training.Samples.Add(sample);
-                else
-                    validation.Samples.Add(sample);
-            }
-
-            return new TrainValidationData {
-                Training = training,
-                Validation = validation
-            };
-        }
-
         public static Sequential TrainNetworkWithData(TrainingData train, TrainingData validation = null) {
-            const int batchSize = 1000;
+            const int batchSize = 128;
             const int epochs = 100;
             const int verbose = 2;
             const bool shuffle = false;
@@ -70,13 +52,16 @@ namespace MilkrunOptimizer.NeuralNetwork {
             model.Compile("adam", "mape", new string[] { });
             model.Summary();
 
+            var checkpoint = new ModelCheckpoint("best_model.hdf5");
+            var callbacks = new Callback[] { checkpoint };
+
             if (validation == null) {
-                model.Fit(data.TrainXs, data.TrainYs, batchSize, epochs, verbose, shuffle: shuffle);
+                model.Fit(data.TrainXs, data.TrainYs, batchSize, epochs, verbose, shuffle: shuffle, callbacks:callbacks);
             }
             else {
                 var validationData = new[] {data.ValidationXs, data.ValidationYs};
                 model.Fit(data.TrainXs, data.TrainYs, batchSize, epochs, verbose, shuffle: shuffle,
-                    validation_data: validationData);
+                    validation_data: validationData, callbacks:callbacks);
             }
 
             return model;
