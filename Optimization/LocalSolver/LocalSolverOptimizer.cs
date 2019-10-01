@@ -1,15 +1,14 @@
 ﻿using System.Linq;
 using MilkrunOptimizer.Model;
-using MilkrunOptimizer.NeuralNetwork;
 using MilkrunOptimizer.Optimization.LocalSolver.Evaluators;
 using Python.Runtime;
 
 namespace MilkrunOptimizer.Optimization.LocalSolver {
     public static class LocalSolverOptimizer {
-        public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem,
-            ProductionRatePredictor predictor) {
+        public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem, BaseProductionRatePredictor predictor = null) {
             
-            PythonEngine.BeginAllowThreads();
+            if(predictor != null)
+                PythonEngine.BeginAllowThreads();
             
             using var ls = new localsolver.LocalSolver();
             var model = ls.GetModel();
@@ -21,7 +20,7 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
                 .ToList();
 
             void SetupMinimumProductionRateConstraint() {
-                var evaluator = new NetworkEvaluator(problem, predictor);
+                BaseEvaluator evaluator = predictor != null ? (BaseEvaluator)new NetworkEvaluator(problem, predictor) : new SimulationEvaluator(problem);
                 var func = model.CreateNativeFunction(evaluator.Evaluate);
                 var rateEvalCall = model.Call(func);
                 rateEvalCall.AddOperand(milkrunCycleLength);

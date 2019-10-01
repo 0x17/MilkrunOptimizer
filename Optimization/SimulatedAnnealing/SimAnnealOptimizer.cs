@@ -3,12 +3,11 @@ using System.Diagnostics;
 using System.Linq;
 using MilkrunOptimizer.Helpers;
 using MilkrunOptimizer.Model;
-using MilkrunOptimizer.NeuralNetwork;
 
 namespace MilkrunOptimizer.Optimization.SimulatedAnnealing {
     public class SimAnnealOptimizer {
         public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem,
-            ProductionRatePredictor predictor, int numIterations, float temp0) {
+            BaseProductionRatePredictor predictor, int numIterations, float temp0) {
             Utils.SetSeed(23);
             var sw = new Stopwatch();
             sw.Start();
@@ -26,6 +25,7 @@ namespace MilkrunOptimizer.Optimization.SimulatedAnnealing {
                 var stepWidth = (int) Math.Round(Math.Max(1.0f, 0.2f * temp));
                 solCandidate.Move(stepWidth);
                 var solCandidatePr = solCandidate.ProductionRate(problem, predictor);
+                Console.WriteLine("Prediction is {0}", solCandidatePr);
                 if (solCandidatePr >= problem.MinProductionRate) {
                     var solCandidateObj = solCandidate.Costs(problem);
                     if (AcceptanceMetropolis(curSolObj, solCandidateObj, temp)) {

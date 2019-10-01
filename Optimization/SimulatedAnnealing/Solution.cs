@@ -58,7 +58,7 @@ namespace MilkrunOptimizer.Optimization.SimulatedAnnealing {
                    OrderUpToLevels.Select((oul, ix) => oul * problem.OrderUpToCostFactors[ix]).Sum();
         }
 
-        public float ProductionRate(MilkrunBufferAllocationProblem problem, ProductionRatePredictor predictor) {
+        public float ProductionRate(MilkrunBufferAllocationProblem problem, BaseProductionRatePredictor predictor) {
             var s = new Sample {
                 BufferSizes = BufferSizes,
                 MaterialRatios = OrderUpToLevels.Select(oul => (float) oul / (float) MilkRunCycleLength).ToList(),

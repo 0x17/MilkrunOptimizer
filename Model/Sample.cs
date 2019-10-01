@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using ProtoBuf;
 
@@ -20,6 +21,10 @@ namespace MilkrunOptimizer.Model {
             var mratios = string.Join(",", MaterialRatios);
             return
                 $"BufferSizes: {bsizes}; MaterialRatios: {mratios}; ProcessingRates: {prates}; ProductionRate: {ProductionRate}";
+        }
+
+        public List<float> ToFloats() {
+            return ProcessingRates.Concat(MaterialRatios).Concat(BufferSizes.Select(b => (float)b)).ToList();
         }
     }
 }

@@ -64,7 +64,9 @@ namespace MilkrunOptimizer {
             void Optimize() {
                 var methodName = structuredArgs.AsStringOrDefault("Method", "LocalSolver");
                 var problem = ProblemInstanceGenerator.Generate(23);
-                var predictor = new ProductionRatePredictor(NetworkTrainer.LoadFromDisk("model.hdf5"));
+                BaseProductionRatePredictor predictor = null;
+                //predictor = new KerasNeuralProductionRatePredictor(ModelPersistence.LoadFromDisk("model.hdf5"));
+                predictor = new OnnxNeuralProductionRatePredictor("converted.onnx");
                 MilkrunBufferAllocationSolution sol = null;
                 switch (methodName) {
                     case "SimulatedAnnealing":
@@ -102,8 +104,8 @@ namespace MilkrunOptimizer {
 
         private static void ShowUsage(Dictionary<string, Action> actionMappings) {
             Console.WriteLine("Arguments do not match any known operation");
-            //foreach(var key in actionMappings.Keys)
             Console.WriteLine("Usage 1: dotnet MilkrunOptimizer.dll PrintData Filename=test.bin NumRows=10");
+            Console.WriteLine("Known actions are: " + string.Join(", ", actionMappings.Keys));
         }
     }
 }
