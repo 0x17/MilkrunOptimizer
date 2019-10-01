@@ -39,19 +39,23 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
                     model.Sum(orderUpToLevels.Select((level, ix) => level * problem.OrderUpToCostFactors[ix]));
                 model.Minimize(milkrunCycleCosts + bufferCosts + orderUpToCosts);
             }
+            
+            void SetInitialSolution() {
+                bufferSizes.ForEach(bufferSize => bufferSize.SetValue(500));
+                orderUpToLevels.ForEach(oul => oul.SetValue(100));
+                milkrunCycleLength.SetValue(1);
+            }
 
             SetupMinimumProductionRateConstraint();
             SetupObjectiveFunction();
             model.Close();
-
-            bufferSizes.ForEach(bufferSize => bufferSize.SetValue(500));
-            orderUpToLevels.ForEach(oul => oul.SetValue(100));
-            milkrunCycleLength.SetValue(1);
+            
+            SetInitialSolution();
 
             ls.GetParam().SetTimeLimit(10);
             ls.GetParam().SetNbThreads(1);
             ls.Solve();
-
+            
             return new MilkrunBufferAllocationSolution {
                 BufferSizes = bufferSizes.Select(bufferSize => (int) bufferSize.GetIntValue()).ToList(),
                 MilkRunCycleLength = (int) milkrunCycleLength.GetIntValue(),

@@ -65,7 +65,7 @@ namespace MilkrunOptimizer {
                 var problem = ProblemInstanceGenerator.Generate(23);
                 BaseProductionRatePredictor predictor = null;
                 //predictor = new KerasNeuralProductionRatePredictor(ModelPersistence.LoadFromDisk("model.hdf5"));
-                predictor = new OnnxNeuralProductionRatePredictor("converted.onnx");
+                //predictor = new OnnxNeuralProductionRatePredictor("converted.onnx");
                 MilkrunBufferAllocationSolution sol = null;
                 switch (methodName) {
                     case "SimulatedAnnealing":

@@ -11,10 +11,8 @@ using MilkrunOptimizer.Persistence;
 namespace MilkrunOptimizer.TrainingDataGeneration {
     public static class SimulationRunner {
         private static readonly Dictionary<string, string> SimulationBinaryPaths = new Dictionary<string, string> {
-            {"Darwin", "/Users/andreschnabel/Seafile/Dropbox/HelberSimulation/FlowLineOptimizer/clustersim/Simulation"}, {
-                "Windows",
-                "C:\\Users\\Andre\\Seafile\\Dropbox\\HelberSimulation\\FlowLineOptimizer\\clustersim\\SimulationWindows.exe"
-            },
+            {"Darwin", "/Users/andreschnabel/Seafile/Dropbox/HelberSimulation/FlowLineOptimizer/clustersim/Simulation"},
+            {"Windows", "Simulation.exe"},
             {"Linux", "./Simulation"}
         };
 
