@@ -37,7 +37,8 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
                 rateEvalCall.AddOperand(milkrunCycleLength);
                 rateEvalCall.AddOperands(orderUpToLevels);
                 rateEvalCall.AddOperands(bufferSizes);
-                model.Constraint(rateEvalCall >= problem.MinProductionRate);
+                const float epsilon = 0.005f;
+                model.Constraint(rateEvalCall >= problem.MinProductionRate + epsilon);
             }
 
             void SetupObjectiveFunction() {

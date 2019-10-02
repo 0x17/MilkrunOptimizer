@@ -37,7 +37,7 @@ namespace MilkrunOptimizer.ClassicML {
             };
         }
 
-        private static IDataView ToDataView(MLContext context, TrainingData data) {
+        internal static IDataView ToDataView(MLContext context, TrainingData data) {
             var convertedSamples = data.Samples.Select(ConvertToMlSample);
             return context.Data.LoadFromEnumerable(convertedSamples);
         }

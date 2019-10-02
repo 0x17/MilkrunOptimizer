@@ -95,6 +95,13 @@ namespace MilkrunOptimizer {
                 context.Model.Save(transformer, schema,"model.zip");
             }
 
+            void AutoMl() {
+                var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
+                var tvd = MlUtils.Split(td, 0.5f, true);
+                MLContext context = new MLContext(23);
+                ModelSearch.AutoMlOnDataset(context, tvd.Training, tvd.Validation);
+            }
+
             var availableActions = new List<Action> {
                 BatchSimulation,
                 TrainNetwork,
@@ -102,7 +109,8 @@ namespace MilkrunOptimizer {
                 MergeResults,
                 PrintData,
                 Optimize,
-                TrainForest
+                TrainForest,
+                AutoMl
             };
 
             var actionMappings =
