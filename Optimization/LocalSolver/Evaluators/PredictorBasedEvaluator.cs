@@ -4,15 +4,15 @@ using MilkrunOptimizer.Model;
 using MilkrunOptimizer.NeuralNetwork;
 
 namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
-    internal class NetworkEvaluator : BaseEvaluator {
+    internal class PredictorBasedEvaluator : BaseEvaluator {
         private readonly BaseProductionRatePredictor _predictor;
 
-        public NetworkEvaluator(MilkrunBufferAllocationProblem problem, BaseProductionRatePredictor predictor) :
+        public PredictorBasedEvaluator(MilkrunBufferAllocationProblem problem, BaseProductionRatePredictor predictor) :
             base(problem) {
             _predictor = predictor;
         }
 
-        public NetworkEvaluator(MilkrunBufferAllocationProblem problem, BaseModel model) : base(problem) {
+        public PredictorBasedEvaluator(MilkrunBufferAllocationProblem problem, BaseModel model) : base(problem) {
             _predictor = new KerasNeuralProductionRatePredictor(model);
         }
 

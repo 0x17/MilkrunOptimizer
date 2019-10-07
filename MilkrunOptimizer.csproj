@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Keras.NET" Version="3.6.1.9" />
+      <PackageReference Include="Keras.NET" Version="3.6.1.11" />
       <PackageReference Include="Microsoft.ML" Version="1.3.1" />
       <PackageReference Include="Microsoft.ML.AutoML" Version="0.15.1" />
       <PackageReference Include="Microsoft.ML.FastTree" Version="1.3.1" />
@@ -19,7 +19,7 @@
 
     <ItemGroup>
       <Reference Include="localsolvernet, Version=9.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\..\..\..\opt\localsolver_9_0\bin\localsolvernet.dll</HintPath>
+        <HintPath>C:\localsolver_9_0\bin\localsolvernet.dll</HintPath>
       </Reference>
     </ItemGroup>
 

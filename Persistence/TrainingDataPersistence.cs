@@ -3,7 +3,7 @@ using MilkrunOptimizer.Model;
 using ProtoBuf;
 
 namespace MilkrunOptimizer.Persistence {
-    public class TrainingDataPersistence {
+    public static class TrainingDataPersistence {
         public static TrainingData LoadFromDisk(string path) {
             using var file = File.OpenRead(path);
             return Serializer.Deserialize<TrainingData>(file);

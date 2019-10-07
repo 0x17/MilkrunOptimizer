@@ -3,7 +3,7 @@ using MilkrunOptimizer.Model;
 using MilkrunOptimizer.TrainingDataGeneration;
 
 namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
-    internal abstract class BaseEvaluator {
+    public abstract class BaseEvaluator {
         protected readonly FlowlineConfiguration Flc;
 
         public BaseEvaluator(MilkrunBufferAllocationProblem problem) {

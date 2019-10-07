@@ -8,7 +8,9 @@ namespace MilkrunOptimizer.ClassicML {
     public static class ModelTrainer {
         public static ITransformer TrainModelWithData(MLContext context, TrainingData train, TrainingData validation,
             out DataViewSchema inputSchema) {
-            var trainer = context.Regression.Trainers.FastForest();
+            //var trainer = context.Regression.Trainers.FastForest();
+            //var trainer = context.Regression.Trainers.FastTreeTweedie();
+            var trainer = context.Regression.Trainers.LightGbm();
             var trainingView = ToDataView(context, train);
             inputSchema = trainingView.Schema;
             var validationView = ToDataView(context, validation);

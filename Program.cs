@@ -11,9 +11,11 @@ using MilkrunOptimizer.Model;
 using MilkrunOptimizer.NeuralNetwork;
 using MilkrunOptimizer.Optimization;
 using MilkrunOptimizer.Optimization.LocalSolver;
+using MilkrunOptimizer.Optimization.LocalSolver.Evaluators;
 using MilkrunOptimizer.Optimization.SimulatedAnnealing;
 using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
+using MilkrunOptimizer.TrainingDataGeneration.OptimizationBased;
 
 namespace MilkrunOptimizer {
     internal static class Program {
@@ -31,6 +33,11 @@ namespace MilkrunOptimizer {
                 var td = BatchSimulator.LinesFromSeedRange(fromSeed, toSeed);
                 var outFilename = $"results_from_{fromSeed}_to_{toSeed}.bin";
                 TrainingDataPersistence.SaveToDisk(td, outFilename);
+            }
+            
+            void BatchSimulationOptimizationBased() {
+                var td = OptimizationBasedGenerator.BatchGenerateTrainingData(1000, 1000);
+                TrainingDataPersistence.SaveToDisk(td, $"new_results.bin");
             }
 
             void TrainNetwork() {
@@ -75,7 +82,9 @@ namespace MilkrunOptimizer {
                         sol = SimAnnealOptimizer.Solve(problem, predictor, 1000, 1.0f);
                         break;
                     case "LocalSolver":
-                        sol = LocalSolverOptimizer.Solve(problem, predictor);
+                        //var evaluator = new SimulationEvaluator(problem);
+                        var evaluator = new PredictorBasedEvaluator(problem, predictor);
+                        sol = LocalSolverOptimizer.Solve(problem, evaluator);
                         break;
                 }
 
@@ -87,9 +96,7 @@ namespace MilkrunOptimizer {
 
             void TrainForest() {
                 var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
-                var tvd = MlUtils.Split(td, 0.5f, true);
-                //var model = NetworkTrainer.TrainNetworkWithData(tvd.Training, tvd.Validation);
-                //model.Save("model.hdf5");
+                var tvd = MlUtils.Split(td, 0.999f, true);
                 MLContext context = new MLContext(23);
                 var transformer = ModelTrainer.TrainModelWithData(context, tvd.Training, tvd.Validation, out var schema);
                 context.Model.Save(transformer, schema,"model.zip");
@@ -97,7 +104,7 @@ namespace MilkrunOptimizer {
 
             void AutoMl() {
                 var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
-                var tvd = MlUtils.Split(td, 0.5f, true);
+                var tvd = MlUtils.Split(td, 1.0f, true);
                 MLContext context = new MLContext(23);
                 ModelSearch.AutoMlOnDataset(context, tvd.Training, tvd.Validation);
             }
@@ -110,7 +117,8 @@ namespace MilkrunOptimizer {
                 PrintData,
                 Optimize,
                 TrainForest,
-                AutoMl
+                AutoMl,
+                BatchSimulationOptimizationBased
             };
 
             var actionMappings =

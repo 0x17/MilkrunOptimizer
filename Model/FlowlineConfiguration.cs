@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using ProtoBuf;
 
@@ -28,6 +29,15 @@ namespace MilkrunOptimizer.Model {
                 hashCode = (hashCode * 397) ^ RequiredRelativeMarginOfError.GetHashCode();
                 return hashCode;
             }
+        }
+        
+        public Sample ToSample() {
+            return new Sample {
+                BufferSizes = Buffers.Select(buf => buf.Size).ToList(),
+                MaterialRatios = Machines
+                    .Select(machine => (float) machine.OrderUpToMilkLevel / (float) MilkRunCycleLength).ToList(),
+                ProcessingRates = Machines.Select(machine => machine.ProcessingRate).ToList()
+            };
         }
     }
 }

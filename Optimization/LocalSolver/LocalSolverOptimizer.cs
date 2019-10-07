@@ -7,9 +7,10 @@ using Python.Runtime;
 namespace MilkrunOptimizer.Optimization.LocalSolver {
     public static class LocalSolverOptimizer {
         public static MilkrunBufferAllocationSolution Solve(MilkrunBufferAllocationProblem problem,
-            BaseProductionRatePredictor predictor = null,
+            BaseEvaluator evaluator,
+            long iterationLimit = 1000,
             bool kerasBased = false) {
-            if (predictor != null && kerasBased)
+            if (evaluator != null && kerasBased)
                 PythonEngine.BeginAllowThreads();
 
             using var ls = new localsolver.LocalSolver();
@@ -29,9 +30,6 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
             }
             
             void SetupMinimumProductionRateConstraint() {
-                var evaluator = predictor != null
-                    ? (BaseEvaluator) new NetworkEvaluator(problem, predictor)
-                    : new SimulationEvaluator(problem);
                 var func = model.CreateNativeFunction(evaluator.Evaluate);
                 var rateEvalCall = model.Call(func);
                 rateEvalCall.AddOperand(milkrunCycleLength);
@@ -62,7 +60,8 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
             
             SetInitialSolution();
 
-            ls.GetParam().SetTimeLimit(10);
+            //ls.GetParam().SetTimeLimit(10);
+            ls.GetParam().SetIterationLimit(iterationLimit);
             ls.GetParam().SetNbThreads(1);
             ls.Solve();
             
