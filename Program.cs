@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.ML;
@@ -16,6 +17,7 @@ using MilkrunOptimizer.Optimization.SimulatedAnnealing;
 using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
 using MilkrunOptimizer.TrainingDataGeneration.OptimizationBased;
+using ServiceStack.Text;
 
 namespace MilkrunOptimizer {
     internal static class Program {
@@ -36,13 +38,13 @@ namespace MilkrunOptimizer {
             }
             
             void BatchSimulationOptimizationBased() {
-                var td = OptimizationBasedGenerator.BatchGenerateTrainingData(1000, 1000);
+                var td = OptimizationBasedGenerator.BatchGenerateTrainingData(100, 100);
                 TrainingDataPersistence.SaveToDisk(td, $"new_results.bin");
             }
 
             void TrainNetwork() {
                 var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
-                var tvd = MlUtils.Split(td, 0.5f, true);
+                var tvd = MlUtils.Split(td, 0.5f, false);
                 var model = NetworkTrainer.TrainNetworkWithData(tvd.Training, tvd.Validation);
                 model.Save("model.hdf5");
             }
@@ -108,6 +110,21 @@ namespace MilkrunOptimizer {
                 MLContext context = new MLContext(23);
                 ModelSearch.AutoMlOnDataset(context, tvd.Training, tvd.Validation);
             }
+            
+            void DumpPredictionErrors() {
+                var td = TrainingDataPersistence.LoadFromDisk(structuredArgs.AsString("Filename"));
+                var tvd = MlUtils.Split(td, 0.5f, false);
+                var dnn = new OnnxNeuralProductionRatePredictor("converted.onnx");
+                
+                PredictionSample Predict(Sample sample) {
+                    var predictedRate = dnn.Predict(sample);
+                    float deviation = predictedRate - sample.ProductionRate;
+                    return new PredictionSample(sample, deviation);
+                }
+                
+                var psamples = tvd.Validation.Samples.Take(100).Select(Predict).ToList();
+                File.WriteAllText("deviations.csv", CsvSerializer.SerializeToCsv(psamples));
+            }
 
             var availableActions = new List<Action> {
                 BatchSimulation,
@@ -118,7 +135,8 @@ namespace MilkrunOptimizer {
                 Optimize,
                 TrainForest,
                 AutoMl,
-                BatchSimulationOptimizationBased
+                BatchSimulationOptimizationBased,
+                DumpPredictionErrors
             };
 
             var actionMappings =

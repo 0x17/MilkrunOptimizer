@@ -34,7 +34,7 @@ namespace MilkrunOptimizer.ClassicML {
 
         internal static MlSample ConvertToMlSample(Sample s) {
             return new MlSample {
-                Features = s.BufferSizes.Select(size => (float)size).Concat(s.MaterialRatios).Concat(s.ProcessingRates).ToArray(),
+                Features = s.BufferSizes.Select(size => (float)size).Concat(s.OrderUpToLevels.Select(oul => (float)oul)).Concat(s.ProcessingRates).Append(s.MilkrunCycleLength).ToArray(),
                 ProductionRate = s.ProductionRate
             };
         }

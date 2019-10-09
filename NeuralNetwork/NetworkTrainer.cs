@@ -9,7 +9,8 @@ using Numpy;
 
 namespace MilkrunOptimizer.NeuralNetwork {
     public static class NetworkTrainer {
-        public const int NumFeatures = 4 + 4 + 3;
+        // processing rates 4x, order up to levels 4x, buffer sizes 3x, milk run cycle length 1x
+        public const int NumFeatures = 4 + 4 + 3 + 1;
 
         public static NDarray XsFromSample(Sample sample) {
             var td = new TrainingData {Samples = new List<Sample> {sample}};
@@ -24,7 +25,8 @@ namespace MilkrunOptimizer.NeuralNetwork {
             for (var j = 0; j < NumFeatures; j++) {
                 var sample = data.Samples[i];
                 xsBase[i, j] = j < 4 ? sample.ProcessingRates[j] :
-                    j < 8 ? sample.MaterialRatios[j - 4] : sample.BufferSizes[j - 8];
+                    j < 8 ? sample.OrderUpToLevels[j - 4] :
+                    j < 8+3 ? sample.BufferSizes[j - 8] : sample.MilkrunCycleLength;
             }
 
             return np.array(xsBase);

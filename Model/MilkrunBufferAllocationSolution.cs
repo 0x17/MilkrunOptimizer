@@ -34,7 +34,8 @@ namespace MilkrunOptimizer.Model {
         public Sample ToSample(List<float> processingRates) {
             return new Sample {
                 BufferSizes = BufferSizes,
-                MaterialRatios = OrderUpToLevels.Select(oul => (float)oul/(float)MilkRunCycleLength).ToList(),
+                OrderUpToLevels = OrderUpToLevels,
+                MilkrunCycleLength = MilkRunCycleLength,
                 ProcessingRates = processingRates,
                 ProductionRate = 0.0f
             };

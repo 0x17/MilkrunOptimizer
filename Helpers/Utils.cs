@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text.RegularExpressions;
+using MilkrunOptimizer.Model;
 
 namespace MilkrunOptimizer.Helpers {
     public static class Utils {
@@ -56,6 +59,22 @@ namespace MilkrunOptimizer.Helpers {
             var fullName = action.GetMethodInfo().Name;
             var m = rx.Match(fullName);
             return m.Groups[1].Value;
+        }
+
+        public static List<T> Shuffle<T>(List<T> list) {
+            return Permutation(list.Count).Select(ix => list[ix]).ToList();
+        }
+        
+        public static List<int> Permutation(int n) {
+            List<int> perm = new List<int>();
+            for(int i=0; i<n; i++) {
+                int x;
+                do {
+                    x = RandInt(0, n-1);
+                } while(perm.Contains(x));
+                perm.Add(x);
+            }
+            return perm;
         }
     }
 }

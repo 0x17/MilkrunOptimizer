@@ -7,6 +7,10 @@ namespace MilkrunOptimizer.Helpers {
         public static TrainValidationData Split(TrainingData data, float trainPercentage = 0.5f, bool shuffle = false) {
             var training = new TrainingData {Samples = new List<Sample>()};
             var validation = new TrainingData {Samples = new List<Sample>()};
+            
+            if(shuffle) {
+                data = new TrainingData { Samples = Utils.Shuffle(data.Samples) };
+            }
 
             var lastTrainIndex = (int) Math.Round(data.Samples.Count * trainPercentage);
             for (var i = 0; i < data.Samples.Count; i++) {

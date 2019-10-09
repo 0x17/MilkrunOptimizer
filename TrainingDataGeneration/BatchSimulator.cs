@@ -40,8 +40,8 @@ namespace MilkrunOptimizer.TrainingDataGeneration {
             var sample = new Sample {
                 BufferSizes = flc.Buffers.Select(buf => buf.Size).ToList(),
                 ProcessingRates = flc.Machines.Select(machine => machine.ProcessingRate).ToList(),
-                MaterialRatios = flc.Machines
-                    .Select(machine => (float) machine.OrderUpToMilkLevel / (float) flc.MilkRunCycleLength).ToList(),
+                OrderUpToLevels = flc.Machines.Select(machine => machine.OrderUpToMilkLevel).ToList(),
+                MilkrunCycleLength = flc.MilkRunCycleLength,
                 ProductionRate = rate
             };
             return sample;
