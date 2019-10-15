@@ -16,7 +16,9 @@ using MilkrunOptimizer.Optimization.LocalSolver.Evaluators;
 using MilkrunOptimizer.Optimization.SimulatedAnnealing;
 using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
+using MilkrunOptimizer.TrainingDataGeneration.Exhaustive;
 using MilkrunOptimizer.TrainingDataGeneration.OptimizationBased;
+using ServiceStack;
 using ServiceStack.Text;
 
 namespace MilkrunOptimizer {
@@ -126,6 +128,46 @@ namespace MilkrunOptimizer {
                 File.WriteAllText("deviations.csv", CsvSerializer.SerializeToCsv(psamples));
             }
 
+            void TestExhaustiveGenerator() {
+                int numMachines = 4;
+                int numBuffers = numMachines - 1;
+                var features = new List<FeatureDescription> {
+                    new FeatureDescription() {
+                        IsDiscrete = true,
+                        LowerBound = 0,
+                        UpperBound = 120,
+                        Name="milkrun_cycle_length"
+                    }
+                };
+                features.AddRange(Enumerable.Range(0, numMachines).Select(i=>
+                    new FeatureDescription {
+                        IsDiscrete = false,
+                        LowerBound = 0.8,
+                        UpperBound = 1.2,
+                        Name=$"processing_rate_{i+1}"
+                    }));
+                features.AddRange(Enumerable.Range(0, numMachines).Select(i=>
+                    new FeatureDescription {
+                        IsDiscrete = true,
+                        LowerBound = 0,
+                        UpperBound = 10,
+                        Name=$"order_up_to_level_{i+1}"
+                    }));
+                features.AddRange(Enumerable.Range(0, numBuffers).Select(i=>
+                    new FeatureDescription {
+                        IsDiscrete = true,
+                        LowerBound = 1,
+                        UpperBound = 80,
+                        Name=$"buffer_size_{i+1}"
+                    }));
+                var samples = OrthoLatinHyperCube.PickSamples(features.ToArray(), 80, 1);
+                var lines = new List<string> {
+                    string.Join(";", samples.First().ColumnNames())
+                };
+                lines.AddRange(samples.Select(sample => string.Join(";", sample.ToFloats())));
+                File.WriteAllText("ortholatinhypercube.csv", string.Join("\n", lines));
+            }
+
             var availableActions = new List<Action> {
                 BatchSimulation,
                 TrainNetwork,
@@ -136,7 +178,8 @@ namespace MilkrunOptimizer {
                 TrainForest,
                 AutoMl,
                 BatchSimulationOptimizationBased,
-                DumpPredictionErrors
+                DumpPredictionErrors,
+                TestExhaustiveGenerator
             };
 
             var actionMappings =

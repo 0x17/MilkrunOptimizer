@@ -64,17 +64,35 @@ namespace MilkrunOptimizer.Helpers {
         public static List<T> Shuffle<T>(List<T> list) {
             return Permutation(list.Count).Select(ix => list[ix]).ToList();
         }
-        
+
         public static List<int> Permutation(int n) {
             List<int> perm = new List<int>();
-            for(int i=0; i<n; i++) {
+            for (int i = 0; i < n; i++) {
                 int x;
                 do {
-                    x = RandInt(0, n-1);
-                } while(perm.Contains(x));
+                    x = RandInt(0, n - 1);
+                } while (perm.Contains(x));
+
                 perm.Add(x);
             }
+
             return perm;
+        }
+
+        public static IEnumerable<double> Range(double lbIncl, double ubIncl, double step) {
+            for (double value = lbIncl; value <= ubIncl; value += step) {
+                yield return value;
+            }
+        }
+
+        public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences) {
+            IEnumerable<IEnumerable<T>> emptyProduct = new[] {Enumerable.Empty<T>()};
+            return sequences.Aggregate(
+                emptyProduct,
+                (accumulator, sequence) =>
+                    from accseq in accumulator
+                    from item in sequence
+                    select accseq.Concat(new[] {item}));
         }
     }
 }
