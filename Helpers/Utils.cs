@@ -85,6 +85,12 @@ namespace MilkrunOptimizer.Helpers {
             }
         }
 
+        public static IEnumerable<double> RangeCount(double lbIncl, double step, int count) {
+            for (int i = 0; i < count; i++) {
+                yield return lbIncl + i * step;
+            }
+        }
+
         public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences) {
             IEnumerable<IEnumerable<T>> emptyProduct = new[] {Enumerable.Empty<T>()};
             return sequences.Aggregate(

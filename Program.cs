@@ -134,9 +134,9 @@ namespace MilkrunOptimizer {
                 var features = new List<FeatureDescription> {
                     new FeatureDescription() {
                         IsDiscrete = true,
-                        LowerBound = 0,
+                        LowerBound = 30,
                         UpperBound = 120,
-                        Name="milkrun_cycle_length"
+                        Name=DefaultFeatures.MilkRunCycleLength.ToString()
                     }
                 };
                 features.AddRange(Enumerable.Range(0, numMachines).Select(i=>
@@ -144,27 +144,29 @@ namespace MilkrunOptimizer {
                         IsDiscrete = false,
                         LowerBound = 0.8,
                         UpperBound = 1.2,
-                        Name=$"processing_rate_{i+1}"
+                        Name=DefaultFeatures.ProcessingRate+$"{i+1}"
                     }));
                 features.AddRange(Enumerable.Range(0, numMachines).Select(i=>
                     new FeatureDescription {
-                        IsDiscrete = true,
-                        LowerBound = 0,
-                        UpperBound = 10,
-                        Name=$"order_up_to_level_{i+1}"
+                        IsDiscrete = false,
+                        LowerBound = 0.5,
+                        UpperBound = 1.5,
+                        Name=DefaultFeatures.MaterialRatio+$"{i+1}"
                     }));
                 features.AddRange(Enumerable.Range(0, numBuffers).Select(i=>
                     new FeatureDescription {
                         IsDiscrete = true,
-                        LowerBound = 1,
+                        LowerBound = 0,
                         UpperBound = 80,
-                        Name=$"buffer_size_{i+1}"
+                        Name=DefaultFeatures.BufferSize+$"{i+1}"
                     }));
-                var samples = OrthoLatinHyperCube.PickSamples(features.ToArray(), 80, 1);
+                int targetSampleCount = 1000000;
+                int numValues = (int)Math.Ceiling(targetSampleCount / 4096.0) * 4096;
+                var samples = OrthoLatinHyperCube.PickSamples(features.ToArray(), numValues, 2);
                 var lines = new List<string> {
-                    string.Join(";", samples.First().ColumnNames())
+                    string.Join(",", samples.First().ColumnNames())
                 };
-                lines.AddRange(samples.Select(sample => string.Join(";", sample.ToFloats())));
+                lines.AddRange(samples.Select(sample => string.Join(",", sample.ToFloats())));
                 File.WriteAllText("ortholatinhypercube.csv", string.Join("\n", lines));
             }
 
