@@ -168,6 +168,15 @@ namespace MilkrunOptimizer {
                 };
                 lines.AddRange(samples.Select(sample => string.Join(",", sample.ToFloats())));
                 File.WriteAllText("ortholatinhypercube.csv", string.Join("\n", lines));
+                
+                Console.WriteLine("Distinct values");
+                for(int i=0; i<4; i++) {
+                    if(i<3)
+                        Console.WriteLine($"Distinct buffer sizes = {samples.Select(s => s.BufferSizes[i]).Distinct().Count()}");
+                    Console.WriteLine($"Distinct order up to levels = {samples.Select(s => s.OrderUpToLevels[i]).Distinct().Count()}");
+                    Console.WriteLine($"Distinct processing rates = {samples.Select(s => s.ProcessingRates[i]).Distinct().Count()}");
+                }
+                Console.WriteLine($"Distinct milk run cycle lengths = {samples.Select(s => s.MilkrunCycleLength).Distinct().Count()}");
             }
 
             var availableActions = new List<Action> {

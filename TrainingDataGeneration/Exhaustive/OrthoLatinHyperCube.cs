@@ -11,18 +11,18 @@ namespace MilkrunOptimizer.TrainingDataGeneration.Exhaustive {
             int subCubeSplitFactor = 2) {
             int numFeatures = features.Length;
             var featureIndices = Enumerable.Range(0, numFeatures).ToArray();
+            
+            double[] deltas = featureIndices.Select(i => (features[i].UpperBound - features[i].LowerBound) / (numValues - 1)).ToArray();
 
-            List<double>[] ComputeFeatureValues() {
+            double[][] ComputeFeatureValues() {
                 Debug.WriteLine($"Computing feature values for {features.Length} features...");
-                double[] deltas = featureIndices
-                    .Select(i => (features[i].UpperBound - features[i].LowerBound) / (numValues - 1)).ToArray();
-                var vals = featureIndices.Select(i => Utils.RangeCount(features[i].LowerBound, deltas[i], numValues).ToList()).ToArray();
+                var vals = featureIndices.Select(i => Utils.RangeCount(features[i].LowerBound, deltas[i], numValues).ToArray()).ToArray();
                 Debug.WriteLine("Rounding all discrete features...");
                 for (int i = 0; i < vals.Length; i++) {
                     if (features[i].IsDiscrete) {
-                        vals[i] = vals[i].Select(v => Math.Round(v)).ToList();
+                        vals[i] = vals[i].Select(v => Math.Round(v)).ToArray();
                     }
-                    Debug.Assert(vals[i].Count == numValues, "Missed targeted number of values");
+                    Debug.Assert(vals[i].Length == numValues, "Missed targeted number of values");
                 }
                 return vals;
             }
@@ -36,6 +36,7 @@ namespace MilkrunOptimizer.TrainingDataGeneration.Exhaustive {
             }
 
             var values = ComputeFeatureValues();
+            bool[][] taken = featureIndices.Select(featureIx => Enumerable.Repeat(false, numValues).ToArray()).ToArray();
             var subCubeBorders = ComputeSubCubeBorders();
 
             var samples = new List<Sample>();
@@ -49,17 +50,6 @@ namespace MilkrunOptimizer.TrainingDataGeneration.Exhaustive {
             Debug.Assert(numSamplesPerSubCube * numSubCubes == numValues,
                 "Total number of samples must equal the number of values.");
 
-            List<double> GetValuesInSubcubeForFeature(List<double> valuesForFeature, double min, double max) {
-                double eps = 0.0;
-                List<double> filteredElems;
-                do {
-                    filteredElems = valuesForFeature.Where(x => x >= min - eps && x <= max + eps).ToList();
-                    eps += 1.0;
-                } while (filteredElems.Count == 0);
-
-                return filteredElems;
-            }
-
             string[] featureNames = features.Select(f => f.Name).ToArray();
 
             var sw = new Stopwatch();
@@ -71,8 +61,12 @@ namespace MilkrunOptimizer.TrainingDataGeneration.Exhaustive {
                 var tripleArr = triple.ToArray();
                 var mins = featureIndices.Select(i => subCubeBorders[i][tripleArr[i]]).ToArray();
                 var maxs = featureIndices.Select(i => subCubeBorders[i][tripleArr[i] + 1]).ToArray();
-                var valuesInSubcube = values.Select((valuesForFeature, ix) => GetValuesInSubcubeForFeature(valuesForFeature, mins[ix], maxs[ix])).ToArray();
-                samples.AddRange(Enumerable.Range(0, numSamplesPerSubCube).Select(i => PickRandomlyAndRemove(rand, featureNames, values, valuesInSubcube)));
+                
+                int[] minIndices = featureIndices.Select(i => (int)Math.Floor((mins[i]-features[i].LowerBound)/deltas[i])).ToArray();
+                int[] maxIndices = featureIndices.Select(i => (int)Math.Ceiling((maxs[i]-features[i].LowerBound)/deltas[i])).ToArray();
+                
+                samples.AddRange(Enumerable.Range(0, numSamplesPerSubCube).Select(i => PickRandomlyAndRemove(rand, featureNames, values, minIndices, maxIndices, taken)));
+                
                 var averageSamplesPerElapsedTime = (double) samples.Count / (double) sw.ElapsedMilliseconds;
                 var remainingTime = numValues / averageSamplesPerElapsedTime;
                 Console.Write(
@@ -115,18 +109,20 @@ namespace MilkrunOptimizer.TrainingDataGeneration.Exhaustive {
             return materialRatios.Select(mr => (int) Math.Round(mr * milkrunCycleLength)).ToList();
         }
 
-        public static Sample PickRandomlyAndRemove(Random rand, string[] featureNames, List<double>[] values,
-            List<double>[] valuesInSubcube) {
+        public static Sample PickRandomlyAndRemove(Random rand, string[] featureNames, double[][] values,
+            int[] minIndices, int[] maxIndices, bool[][] taken) {
             double ChooseAndRemove(int featureIndex) {
-                Debug.Assert(valuesInSubcube[featureIndex].Count > 0);
-                List<double> valuesInSubcubeForThisFeature = valuesInSubcube[featureIndex];
-                int randIndex = rand.Next(0, valuesInSubcubeForThisFeature.Count);
-                double elem = valuesInSubcubeForThisFeature[randIndex];
-                valuesInSubcubeForThisFeature.Remove(elem);
-                values[featureIndex].Remove(elem);
+                Debug.Assert(minIndices[featureIndex] <= maxIndices[featureIndex], "Index bounds are identical");
+                var everyElementTaken = Enumerable.Range(minIndices[featureIndex], maxIndices[featureIndex] - minIndices[featureIndex] + 1).Any(ix => !taken[featureIndex][ix]);
+                //Debug.Assert(everyElementTaken, "Every element already taken");
+                int randIndex;
+                do {
+                    randIndex = rand.Next(minIndices[featureIndex], maxIndices[featureIndex]);
+                } while(taken[featureIndex][randIndex] && !everyElementTaken);
+                double elem = values[featureIndex][randIndex];
+                taken[featureIndex][randIndex] = true;
                 return elem;
             }
-
             return FromPick(featureNames, Enumerable.Range(0, featureNames.Length).Select(ChooseAndRemove).ToArray());
         }
     }
