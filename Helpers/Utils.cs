@@ -65,17 +65,14 @@ namespace MilkrunOptimizer.Helpers {
             return Permutation(list.Count).Select(ix => list[ix]).ToList();
         }
 
-        public static List<int> Permutation(int n) {
-            List<int> perm = new List<int>();
-            for (int i = 0; i < n; i++) {
-                int x;
-                do {
-                    x = RandInt(0, n - 1);
-                } while (perm.Contains(x));
-
-                perm.Add(x);
+        public static int[] Permutation(int n) {
+            int[] perm = Enumerable.Range(0, n).ToArray();
+            for (int i = n - 1; i >= 1; i--) {
+                int j= RandInt(0, i);
+                int temp = perm[j];
+                perm[j] = perm[i];
+                perm[i] = temp;
             }
-
             return perm;
         }
 

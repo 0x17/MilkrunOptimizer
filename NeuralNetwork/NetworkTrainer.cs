@@ -33,8 +33,11 @@ namespace MilkrunOptimizer.NeuralNetwork {
         }
 
         public static Sequential TrainNetworkWithData(TrainingData train, TrainingData validation = null) {
+            // Disable gpu computing for dense network (due to limited parallelization possibilities and empirically observed negative speedup)
+            Environment.SetEnvironmentVariable("CUDA_VISIBLE_DEVICES", "-1");
+            
             const int batchSize = 128;
-            const int epochs = 100;
+            const int epochs = 500;
             const int verbose = 2;
             const bool shuffle = false;
 
@@ -42,8 +45,8 @@ namespace MilkrunOptimizer.NeuralNetwork {
 
             Sequential BuildNetworkTopology() {
                 var dnn = new Sequential();
-                dnn.Add(new Dense(200, NumFeatures, "relu", kernel_initializer: "uniform"));
-                var hiddenLayerSizes = new List<int> {100, 100, 100, 100, 100, 100, 100, 100, 100};
+                dnn.Add(new Dense(512, NumFeatures, "relu", kernel_initializer: "uniform"));
+                var hiddenLayerSizes = new List<int> {256, 128, 64, 32, 16};
                 foreach (var size in hiddenLayerSizes)
                     dnn.Add(new Dense(size, activation: "relu", kernel_initializer: "uniform"));
                 dnn.Add(new Dense(1, activation: "sigmoid", kernel_initializer: "uniform"));
@@ -51,7 +54,7 @@ namespace MilkrunOptimizer.NeuralNetwork {
             }
 
             var model = BuildNetworkTopology();
-            model.Compile("adam", "mape", new string[] { });
+            model.Compile("adam", "mse", new string[] { });
             model.Summary();
 
             var checkpoint = new ModelCheckpoint("best_model.hdf5");

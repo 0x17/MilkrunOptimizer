@@ -51,6 +51,13 @@ namespace MilkrunOptimizer {
                 model.Save("model.hdf5");
             }
 
+            void TrainNetworkOrthogonalSampling() {
+                var td = TrainingDataPersistence.ParseCsv(structuredArgs.AsString("Filename"));
+                var tvd = MlUtils.Split(td, 0.999f, true);
+                var model = NetworkTrainer.TrainNetworkWithData(tvd.Training, tvd.Validation);
+                model.Save("modelOrtho.hdf5");
+            }
+
             void JobGeneration() {
                 JobGenerator.GenerateJobs();
             }
@@ -182,6 +189,7 @@ namespace MilkrunOptimizer {
             var availableActions = new List<Action> {
                 BatchSimulation,
                 TrainNetwork,
+                TrainNetworkOrthogonalSampling,
                 JobGeneration,
                 MergeResults,
                 PrintData,
