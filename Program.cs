@@ -85,8 +85,8 @@ namespace MilkrunOptimizer {
                 var problem = ProblemInstanceGenerator.Generate(23);
                 BaseProductionRatePredictor predictor = null;
                 //predictor = new KerasNeuralProductionRatePredictor(ModelPersistence.LoadFromDisk("model.hdf5"));
-                //predictor = new OnnxNeuralProductionRatePredictor("converted.onnx");
-                predictor = new MlProductionRatePredictor("model.zip");
+                predictor = new OnnxNeuralProductionRatePredictor("converted.onnx");
+                //predictor = new MlProductionRatePredictor("model.zip");
                 MilkrunBufferAllocationSolution sol = null;
                 switch (methodName) {
                     case "SimulatedAnnealing":
@@ -186,6 +186,13 @@ namespace MilkrunOptimizer {
                 Console.WriteLine($"Distinct milk run cycle lengths = {samples.Select(s => s.MilkrunCycleLength).Distinct().Count()}");
             }
 
+            void GenerateInstance() {
+                int seed = structuredArgs.AsInt("Seed");
+                string filename = structuredArgs.AsStringOrDefault("Filename", "instance.json");
+                var flowLineConfig = InstanceGenerator.Generate(seed);
+                Utils.SaveObjectAsJson(flowLineConfig, filename);
+            }
+
             var availableActions = new List<Action> {
                 BatchSimulation,
                 TrainNetwork,
@@ -198,7 +205,8 @@ namespace MilkrunOptimizer {
                 AutoMl,
                 BatchSimulationOptimizationBased,
                 DumpPredictionErrors,
-                TestExhaustiveGenerator
+                TestExhaustiveGenerator,
+                GenerateInstance
             };
 
             var actionMappings =
