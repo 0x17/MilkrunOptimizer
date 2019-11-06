@@ -97,5 +97,13 @@ namespace MilkrunOptimizer.Helpers {
                     from item in sequence
                     select accseq.Concat(new[] {item}));
         }
+
+        public static int Pow(int n, int exp) {
+            int res = 1;
+            for (int i = 0; i < exp; i++) {
+                res *= n;
+            }
+            return res;
+        }
     }
 }

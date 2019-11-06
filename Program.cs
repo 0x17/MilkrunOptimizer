@@ -136,7 +136,7 @@ namespace MilkrunOptimizer {
             }
 
             void TestExhaustiveGenerator() {
-                int numMachines = 4;
+                int numMachines = 6;
                 int numBuffers = numMachines - 1;
                 var features = new List<FeatureDescription> {
                     new FeatureDescription() {
@@ -167,9 +167,11 @@ namespace MilkrunOptimizer {
                         UpperBound = 80,
                         Name=DefaultFeatures.BufferSize+$"{i+1}"
                     }));
-                int targetSampleCount = 1000000;
-                int numValues = (int)Math.Ceiling(targetSampleCount / 4096.0) * 4096;
-                var samples = OrthoLatinHyperCube.PickSamples(features.ToArray(), numValues, 2);
+                int targetSampleCount = 2000000;
+                int subCubeSplitFactor = 2;
+                int numCubes = Utils.Pow(2, features.Count);
+                int numValues = (int)Math.Ceiling(targetSampleCount / (double)numCubes) * numCubes;
+                var samples = OrthoLatinHyperCube.PickSamples(features.ToArray(), numValues, subCubeSplitFactor);
                 var lines = new List<string> {
                     string.Join(",", samples.First().ColumnNames())
                 };
