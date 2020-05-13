@@ -12,7 +12,7 @@ namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
                 Flc.Machines[i].ProcessingRate = problem.ProcessingRates[i];
         }
 
-        protected void ExtractDataFromContext(LSNativeContext context) {
+        protected void ExtractDataFromContext(LSExternalArgumentValues context) {
             Flc.MilkRunCycleLength = (int) context.GetIntValue(0);
             for (var i = 0; i < Flc.NumMachines; i++)
                 Flc.Machines[i].OrderUpToMilkLevel = (int) context.GetIntValue(1 + i);
@@ -21,6 +21,6 @@ namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
                 Flc.Buffers[i].Size = (int) context.GetIntValue(1 + Flc.NumMachines + i);
         }
 
-        public abstract double Evaluate(LSNativeContext context);
+        public abstract double Evaluate(LSExternalArgumentValues context);
     }
 }

@@ -30,7 +30,7 @@ namespace MilkrunOptimizer.Optimization.LocalSolver {
             }
             
             void SetupMinimumProductionRateConstraint() {
-                var func = model.CreateNativeFunction(evaluator.Evaluate);
+                var func = model.CreateDoubleExternalFunction(evaluator.Evaluate);
                 var rateEvalCall = model.Call(func);
                 rateEvalCall.AddOperand(milkrunCycleLength);
                 rateEvalCall.AddOperands(orderUpToLevels);

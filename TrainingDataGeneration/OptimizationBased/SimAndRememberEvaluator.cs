@@ -10,7 +10,7 @@ namespace MilkrunOptimizer.TrainingDataGeneration.OptimizationBased {
 
         public SimAndRememberEvaluator(MilkrunBufferAllocationProblem problem) : base(problem) {}
 
-        public override double Evaluate(LSNativeContext context) {
+        public override double Evaluate(LSExternalArgumentValues context) {
             ExtractDataFromContext(context);
             var newSample = Flc.ToSample();
             var oldSample = Samples.Find(sample => sample.ToFloats().Equals(newSample.ToFloats()));

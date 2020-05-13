@@ -16,7 +16,7 @@ namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
             _predictor = new KerasNeuralProductionRatePredictor(model);
         }
 
-        public override double Evaluate(LSNativeContext context) {
+        public override double Evaluate(LSExternalArgumentValues context) {
             ExtractDataFromContext(context);
             return _predictor.PredictConfig(Flc);
         }

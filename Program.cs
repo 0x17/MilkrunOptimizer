@@ -18,7 +18,6 @@ using MilkrunOptimizer.Persistence;
 using MilkrunOptimizer.TrainingDataGeneration;
 using MilkrunOptimizer.TrainingDataGeneration.Exhaustive;
 using MilkrunOptimizer.TrainingDataGeneration.OptimizationBased;
-using ServiceStack;
 using ServiceStack.Text;
 
 namespace MilkrunOptimizer {
@@ -139,8 +138,8 @@ namespace MilkrunOptimizer {
                 int numMachines = 6;
                 int numBuffers = numMachines - 1;
                 var features = new List<FeatureDescription> {
-                    new FeatureDescription() {
-                        IsDiscrete = true,
+                    new FeatureDescription {
+                        IsDiscrete = false,
                         LowerBound = 30,
                         UpperBound = 120,
                         Name=DefaultFeatures.MilkRunCycleLength.ToString()
@@ -167,9 +166,16 @@ namespace MilkrunOptimizer {
                         UpperBound = 80,
                         Name=DefaultFeatures.BufferSize+$"{i+1}"
                     }));
+                
+                // Big ortho experiment
+                //int targetSampleCount = 2000000;
+                //int subCubeSplitFactor = 2;
+                
+                // Small latin only experiment
                 int targetSampleCount = 2000000;
-                int subCubeSplitFactor = 2;
-                int numCubes = Utils.Pow(2, features.Count);
+                int subCubeSplitFactor = 1;
+                
+                int numCubes = Utils.Pow(subCubeSplitFactor, features.Count);
                 int numValues = (int)Math.Ceiling(targetSampleCount / (double)numCubes) * numCubes;
                 var samples = OrthoLatinHyperCube.PickSamples(features.ToArray(), numValues, subCubeSplitFactor);
                 var lines = new List<string> {
@@ -178,12 +184,12 @@ namespace MilkrunOptimizer {
                 lines.AddRange(samples.Select(sample => string.Join(",", sample.ToFloats())));
                 File.WriteAllText("ortholatinhypercube.csv", string.Join("\n", lines));
                 
-                Console.WriteLine("Distinct values");
-                for(int i=0; i<4; i++) {
-                    if(i<3)
-                        Console.WriteLine($"Distinct buffer sizes = {samples.Select(s => s.BufferSizes[i]).Distinct().Count()}");
-                    Console.WriteLine($"Distinct order up to levels = {samples.Select(s => s.OrderUpToLevels[i]).Distinct().Count()}");
-                    Console.WriteLine($"Distinct processing rates = {samples.Select(s => s.ProcessingRates[i]).Distinct().Count()}");
+                Console.WriteLine("\nDistinct values");
+                for(int i=0; i<numMachines; i++) {
+                    if(i<numBuffers)
+                        Console.WriteLine($"Distinct buffer {i+1} sizes = {samples.Select(s => s.BufferSizes[i]).Distinct().Count()}");
+                    Console.WriteLine($"Distinct order up to levels {i+1} = {samples.Select(s => s.OrderUpToLevels[i]).Distinct().Count()}");
+                    Console.WriteLine($"Distinct processing rates {i+1} = {samples.Select(s => s.ProcessingRates[i]).Distinct().Count()}");
                 }
                 Console.WriteLine($"Distinct milk run cycle lengths = {samples.Select(s => s.MilkrunCycleLength).Distinct().Count()}");
             }
@@ -228,7 +234,7 @@ namespace MilkrunOptimizer {
         private static void ShowUsage(Dictionary<string, Action> actionMappings) {
             Console.WriteLine("Arguments do not match any known operation");
             Console.WriteLine("Usage 1: dotnet MilkrunOptimizer.dll PrintData Filename=test.bin NumRows=10");
-            Console.WriteLine("Known actions are: " + string.Join(", ", actionMappings.Keys));
+            Console.WriteLine($"Known actions are: {string.Join(", ", actionMappings.Keys)}");
         }
     }
 }

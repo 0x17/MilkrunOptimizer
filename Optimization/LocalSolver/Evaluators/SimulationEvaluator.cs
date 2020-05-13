@@ -7,7 +7,7 @@ namespace MilkrunOptimizer.Optimization.LocalSolver.Evaluators {
         public SimulationEvaluator(MilkrunBufferAllocationProblem problem) : base(problem) {
         }
 
-        public override double Evaluate(LSNativeContext context) {
+        public override double Evaluate(LSExternalArgumentValues context) {
             ExtractDataFromContext(context);
             return SimulationRunner.ProductionRateForConfiguration(Flc);
         }
